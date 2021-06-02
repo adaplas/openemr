@@ -339,45 +339,54 @@ class C_Prescription extends Controller
     {
         $this->providerid = $p->provider->id;
         //print header
-        $pdf->ezImage($GLOBALS['oer_config']['prescriptions']['logo'], '', '50', '', 'center', '');
-        $pdf->ezColumnsStart(array('num' => 2, 'gap' => 10));
+	$pdf->ezColumnsStart(array('num' => 3, 'gap' => 2));
+        $pdf->ezImage($GLOBALS['oer_config']['prescriptions']['logo'], '', '50', '', 'left', '');
+        $pdf->ezNewPage();
+	$pdf->ezText('<b>' . $p->provider->get_name_display() . xl(', MD') . '</b>', 16);
+	$pdf->ezText('<b>' . "Internal Medicine-Geriatrics" . '</b>', 12);
+	$pdf->ezNewPage();
+//        $pdf->ezColumnsStart(array('num' => 2, 'gap' => 10));
         $res = sqlQuery("SELECT concat('<b>',f.name,'</b>\n',f.street,'\n',f.city,', ',f.state,' ',f.postal_code,'\nTel:',f.phone,if(f.fax != '',concat('\nFax: ',f.fax),'')) addr FROM users JOIN facility AS f ON f.name = users.facility where users.id ='" .
             add_escape_custom($p->provider->id) . "'");
         $pdf->ezText($res['addr'], 12);
         $my_y = $pdf->y;
-        $pdf->ezNewPage();
-        $pdf->ezText('<b>' . $p->provider->get_name_display() . '</b>', 12);
+  //      $pdf->ezNewPage();
+        $pdf->ezColumnsStop();
+
+	$pdf->ezText('<b>' . xl('Date') . ": " . date('F j, Y') . '</b>', 12);
+//        $pdf->ezText('<b>' . $p->provider->get_name_display() . xl(', MD') . '</b>', 12);
     // A client had a bad experience with a patient misusing a DEA number, so
     // now the doctors write those in on printed prescriptions and only when
     // necessary.  If you need to change this back, then please make it a
     // configurable option.  Faxed prescriptions were not changed.  -- Rod
     // Now it is configureable. Change value in
     //     Administration->Globals->Rx
-        if ($GLOBALS['rx_enable_DEA']) {
-            if ($this->is_faxing || $GLOBALS['rx_show_DEA']) {
-                $pdf->ezText('<b>' . xl('DEA') . ':</b>' . $p->provider->federal_drug_id, 12);
-            } else {
-                $pdf->ezText('<b>' . xl('DEA') . ':</b> ________________________', 12);
-            }
-        }
 
-        if ($GLOBALS['rx_enable_NPI']) {
-            if ($this->is_faxing || $GLOBALS['rx_show_NPI']) {
-                    $pdf->ezText('<b>' . xl('NPI') . ':</b>' . $p->provider->npi, 12);
-            } else {
-                $pdf->ezText('<b>' . xl('NPI') . ':</b> _________________________', 12);
-            }
-        }
+//      if ($GLOBALS['rx_enable_SLN']) {
+//            if ($this->is_faxing || $GLOBALS['rx_show_SLN']) {
+//                $pdf->ezText('<b>' . xl('PRC') . ':</b>' . $p->provider->state_license_number, 12);
+//            } else {
+//                $pdf->ezText('<b>' . xl('PRC') . ':</b> ___________________', 12);
+//            }
 
-        if ($GLOBALS['rx_enable_SLN']) {
-            if ($this->is_faxing || $GLOBALS['rx_show_SLN']) {
-                $pdf->ezText('<b>' . xl('State Lic. #') . ':</b>' . $p->provider->state_license_number, 12);
-            } else {
-                $pdf->ezText('<b>' . xl('State Lic. #') . ':</b> ___________________', 12);
-            }
-        }
+//       if ($GLOBALS['rx_enable_NPI']) {
+//            if ($this->is_faxing || $GLOBALS['rx_show_NPI']) {
+//                    $pdf->ezText('<b>' . xl('PTR') . ':</b>' . $p->provider->npi, 12);
+//            } else {
+//                $pdf->ezText('<b>' . xl('PTR') . ':</b> _________________________', 12);
+//            }
+//        }
 
-        $pdf->ezColumnsStop();
+//       }        if ($GLOBALS['rx_enable_DEA']) {
+//            if ($this->is_faxing || $GLOBALS['rx_show_DEA']) {
+//                $pdf->ezText('<b>' . xl('S2') . ':</b>' . $p->provider->federal_drug_id, 12);
+//            } else {
+//                $pdf->ezText('<b>' . xl('S2') . ':</b> ________________________', 12);
+//            }
+//        }
+
+
+
         if ($my_y < $pdf->y) {
             $pdf->ezSetY($my_y);
         }
@@ -393,8 +402,8 @@ class C_Prescription extends Controller
         $my_y = $pdf->y;
         $pdf->ezNewPage();
         $pdf->line($pdf->ez['leftMargin'], $pdf->y, $pdf->ez['pageWidth'] - $pdf->ez['rightMargin'], $pdf->y);
-        $pdf->ezText('<b>' . xl('Date of Birth') . '</b>', 6);
-        $pdf->ezText($p->patient->date_of_birth, 10);
+        $pdf->ezText('<b>' . xl('Age/Sex') . '</b>', 6);
+        $pdf->ezText(floor((time() - strtotime($p->patient->date_of_birth))/31556926) . "/" . $p->patient->sex, 10);
         $pdf->ezText('');
         $pdf->line($pdf->ez['leftMargin'], $pdf->y, $pdf->ez['pageWidth'] - $pdf->ez['rightMargin'], $pdf->y);
         $pdf->ezText('<b>' . xl('Medical Record #') . '</b>', 6);
@@ -437,25 +446,25 @@ class C_Prescription extends Controller
 
         if ($GLOBALS['rx_enable_DEA']) {
             if ($GLOBALS['rx_show_DEA']) {
-                echo ('<span class="large"><b>' . xl('DEA') . ':</b>' . $p->provider->federal_drug_id . '</span><br />');
+                echo ('<span class="large"><b>' . xl('S2') . ': </b>' . $p->provider->federal_drug_id . '</span><br />');
             } else {
-                echo ('<b><span class="large">' . xl('DEA') . ':</span></b> ________________________<br />' );
+                echo ('<b><span class="large">' . xl('S2') . ': </span></b> ________________________<br />' );
             }
         }
 
         if ($GLOBALS['rx_enable_NPI']) {
             if ($GLOBALS['rx_show_NPI']) {
-                echo ('<span class="large"><b>' . xl('NPI') . ':</b>' . $p->provider->npi . '</span><br />');
+                echo ('<span class="large"><b>' . xl('PTR') . ': </b>' . $p->provider->npi . '</span><br />');
             } else {
-                echo ('<b><span class="large">' . xl('NPI') . ':</span></b> ________________________<br />');
+                echo ('<b><span class="large">' . xl('PTR') . ': </span></b> ________________________<br />');
             }
         }
 
         if ($GLOBALS['rx_enable_SLN']) {
             if ($GLOBALS['rx_show_SLN']) {
-                echo ('<span class="large"><b>' . xl('State Lic. #') . ':</b>' . $p->provider->state_license_number . '</span><br />');
+                echo ('<span class="large"><b>' . xl('PRC #') . ': </b>' . $p->provider->state_license_number . '</span><br />');
             } else {
-                echo ('<b><span class="large">' . xl('State Lic. #') . ':</span></b> ________________________<br />');
+                echo ('<b><span class="large">' . xl('PRC #') . ': </span></b> ________________________<br />');
             }
         }
 
@@ -546,12 +555,12 @@ class C_Prescription extends Controller
         echo ("<body>\n");
     }
 
-    function multiprintfax_footer(&$pdf)
+    function multiprintfax_footer(&$pdf, $p)
     {
-        return $this->multiprint_footer($pdf);
+        return $this->multiprint_footer($pdf, $p);
     }
 
-    function multiprint_footer(&$pdf)
+    function multiprint_footer(&$pdf, $p)
     {
         if ($this->pconfig['use_signature'] && ( $this->is_faxing || $this->is_print_to_fax )) {
             $sigfile = str_replace('{userid}', $_SESSION["authUser"], $this->pconfig['signature']);
@@ -577,8 +586,35 @@ class C_Prescription extends Controller
             }
         }
 
-        $pdf->ezText("\n\n\n\n" . xl('Signature') . ":________________________________\n" . xl('Date') . ": " . date('Y-m-d'), 12);
-    }
+//        $pdf->ezText("\n\n\n\n" . xl('Signature') . ":________________________________\n" . xl('Date') . ": " . date('Y-m-d'), 12);
+        $pdf->ezText("\n\n\n\n" . '<b>' . "________________________________\n" . xl('Antonino A. Daplas, MD') . '</b>', 12);
+
+        if ($GLOBALS['rx_enable_SLN']) {
+            if ($this->is_faxing || $GLOBALS['rx_show_SLN']) {
+                $pdf->ezText('<b>' . xl('PRC #') . ': </b>' . $p->provider->state_license_number, 12);
+            } else {
+                $pdf->ezText('<b>' . xl('PRC #') . ': </b> ___________________', 12);
+            }
+
+        if ($GLOBALS['rx_enable_NPI']) {
+            if ($this->is_faxing || $GLOBALS['rx_show_NPI']) {
+                    $pdf->ezText('<b>' . xl('PTR #') . ': </b>' . $p->provider->npi, 12);
+            } else {
+                $pdf->ezText('<b>' . xl('PTR #') . ': </b> _________________________', 12);
+            }
+        }
+
+       }        if ($GLOBALS['rx_enable_DEA']) {
+            if ($this->is_faxing || $GLOBALS['rx_show_DEA']) {
+                $pdf->ezText('<b>' . xl('S2 #') . ': </b>' . $p->provider->federal_drug_id, 12);
+            } else {
+                $pdf->ezText('<b>' . xl('S2 #') . ': </b> ________________________', 12);
+            }
+        }
+
+
+
+}
 
     function multiprintcss_footer()
     {
@@ -642,7 +678,7 @@ class C_Prescription extends Controller
         if ($pdf->ezText($d, 10, array(), 1)) {
             $pdf->ez['leftMargin'] -= $pdf->ez['leftMargin'];
             $pdf->ez['rightMargin'] -= $pdf->ez['rightMargin'];
-            $this->multiprint_footer($pdf);
+            $this->multiprint_footer($pdf, $p);
             $pdf->ezNewPage();
             $this->multiprint_header($pdf, $p);
             $pdf->ez['leftMargin'] += $pdf->ez['leftMargin'];
@@ -706,7 +742,7 @@ class C_Prescription extends Controller
             }
 
             if (++$on_this_page > 3 || $p->provider->id != $this->providerid) {
-                $this->multiprint_footer($pdf);
+                $this->multiprint_footer($pdf, $p);
                 $pdf->ezNewPage();
                 $this->multiprint_header($pdf, $p);
                 // $print_header = false;
@@ -716,7 +752,7 @@ class C_Prescription extends Controller
             $this->multiprint_body($pdf, $p);
         }
 
-        $this->multiprint_footer($pdf);
+        $this->multiprint_footer($pdf, $p);
 
         $pFirstName = $p->patient->fname; //modified by epsdky for prescription filename change to include patient name and ID
         $pFName = convert_safe_file_dir_name($pFirstName);
@@ -841,7 +877,7 @@ class C_Prescription extends Controller
 
         $this->multiprint_header($pdf, $p);
         $this->multiprint_body($pdf, $p);
-        $this->multiprint_footer($pdf);
+        $this->multiprint_footer($pdf, $p);
 
         if (!empty($toFile)) {
             $toFile = $pdf->ezOutput();

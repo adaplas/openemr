@@ -25,6 +25,7 @@ class Patient extends ORDataObject
     var $fname;
     var $date_of_birth;
     var $dob;
+    var $sex;
     var $provider;
 
     /**
@@ -39,6 +40,7 @@ class Patient extends ORDataObject
         $this->mname = "";
         $this->fname = "";
         $this->dob   = "";
+	$this->sex   = "";
         $this->provider = new Provider();
         $this->populate();
     }
@@ -46,7 +48,7 @@ class Patient extends ORDataObject
     {
         if (!empty($this->id)) {
             $res = sqlQuery("SELECT providerID , fname , lname , mname, " .
-                "DATE_FORMAT(DOB,'%m/%d/%Y') as date_of_birth, " .
+                "DATE_FORMAT(DOB,'%m/%d/%Y') as date_of_birth, sex, " .
                 "pubpid " .
                 "FROM " . escape_table_name($this->_table) . " " .
                 "WHERE pid = ?", [$this->id]);
@@ -57,6 +59,7 @@ class Patient extends ORDataObject
                 $this->fname = $res['fname'];
                 $this->provider = new Provider($res['providerID']);
                 $this->date_of_birth = $res['date_of_birth'];
+		$this->sex = $res['sex'];
             }
         }
     }
@@ -87,5 +90,9 @@ class Patient extends ORDataObject
     function get_dob()
     {
         return $this->date_of_birth;
+    }
+    function get_sex()
+    {
+        return $this->sex;
     }
 } // end of Patient
