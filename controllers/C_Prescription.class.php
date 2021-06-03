@@ -636,6 +636,49 @@ class C_Prescription extends Controller
 
     function get_prescription_body_text($p)
     {
+	$interval_sub_array = [
+		"b.i.d." => "twice a day",
+		"t.i.d." => "thrice a day",
+		"q.i.d." => "4x a day",
+		"q.3h"   => "every 3 hours",
+		"q.4h"   => "every 4 hours",
+		"q.5h"   => "every 5 hours",
+		"q.6h"   => "every 6 hours",
+		"q.8h"   => "every 8 hours",
+		"q.d."   => "once a day",
+		"a.c."   => "before meals",
+		"p.c."   => "after meals",
+		"a.m."   => "in the morning",
+		"p.m."   => "in the afternoon",
+		"h"      => "hour",
+		"h.s."   => "at bedtime",
+		"p.r.n"  => "as needed",
+		"stat"   => "immediately",
+	];
+
+	$route_sub_array = [
+		"Per Oris"		=> "by mouth",
+		"Per Rectum"		=> "per rectum",
+		"To Skin"		=> "to skin",
+		"To Affected Area"	=> "to affected area",
+		"Sublingual"		=> "under the tongue",
+		"OS"			=> "to left eye",
+		"OD"			=> "to right eye",
+		"OU"			=> "to both eyes",
+		"SQ"			=> "under the skin",
+		"IM"			=> "intramuscularly",
+		"IV"			=> "intravenously",
+		"Per Nostril"		=> "per nostril",
+		"Both Ears"		=> "both ears",
+		"Left Ear"		=> "left ear",
+		"Right Ear"		=> "right ear",
+		"Inhale"		=> "inhaled",
+		"Intradermal"		=> "intradermally",
+		"Other/Miscellaneous"	=> "as directed",
+		"Transdermal"		=> "transdermally",
+		"Intramuscular"		=> "intramuscularly",
+	];
+
         $body = '<b>' . xlt('Rx') . ': ' . text($p->get_drug()) . ' ' . text($p->get_size()) . ' ' . text($p->get_unit_display());
         if ($p->get_form()) {
             $body .= ' [' . text($p->form_array[$p->get_form()]) . "]";
@@ -645,7 +688,7 @@ class C_Prescription extends Controller
             text($p->substitute_array[$p->get_substitute()]) . "</i>\n" .
             '<b>' . xlt('Disp #') . ':</b> <u>' . text($p->get_quantity()) . "</u>\n" .
             '<b>' . xlt('Sig') . ':</b> ' . text($p->get_dosage()) . ' ' . text($p->form_array[$p->get_form()]) . ' ' .
-            text($p->route_array[$p->get_route()]) . ' ' . text($p->interval_array[$p->get_interval()]) . "\n";
+            text($route_sub_array[$p->route_array[$p->get_route()]]) . ' ' . text($interval_sub_array[$p->interval_array[$p->get_interval()]]) . "\n";
         if ($p->get_refills() > 0) {
             $body .= "\n<b>" . xlt('Refills') . ":</b> <u>" .  text($p->get_refills());
             if ($p->get_per_refill()) {
