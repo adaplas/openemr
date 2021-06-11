@@ -587,8 +587,8 @@ class C_Prescription extends Controller
             }
         }
 
-//        $pdf->ezText("\n\n\n\n" . xl('Signature') . ":________________________________\n" . xl('Date') . ": " . date('Y-m-d'), 12);
-        $pdf->ezText("\n\n\n\n" . '<b>' . "________________________________\n" . xl('Antonino A. Daplas, MD') . '</b>', 12);
+//        $pdf->ezText("\n\n" . xl('Signature') . ":________________________________\n" . xl('Date') . ": " . date('Y-m-d'), 12);
+        $pdf->ezText("\n\n" . '<b>' . "________________________________\n" . xl('Antonino A. Daplas, MD') . '</b>', 12);
 
         if ($GLOBALS['rx_enable_SLN']) {
             if ($this->is_faxing || $GLOBALS['rx_show_SLN']) {
@@ -697,9 +697,15 @@ class C_Prescription extends Controller
 
         $body .= "</b>     <i>" .
             text($p->substitute_array[$p->get_substitute()]) . "</i>---------- " .
-            '<b>' . xlt('Disp#') . ':</b> <u>' . text($p->get_quantity()) . $num_words . "</u>\n\n" .
+            '<b>' . xlt('#') . ' </b><u>' . text($p->get_quantity()) . $num_words . "</u>\n\n" .
             '<b>' . xlt('Sig') . ':</b> ' . text($p->get_dosage()) . ' ' . text($p->form_array[$p->get_form()]) . ' ' .
             text($route_sub_array[$p->route_array[$p->get_route()]]) . ' ' . text($interval_sub_array[$p->interval_array[$p->get_interval()]]) . "\n";
+
+        $note = $p->get_note();
+        if ($note != '') {
+            $body .= text($note) . "\n";
+        }
+
         if ($p->get_refills() > 0) {
             $body .= "\n<b>" . xlt('Refills') . ":</b> <u>" .  text($p->get_refills());
             if ($p->get_per_refill()) {
@@ -708,13 +714,9 @@ class C_Prescription extends Controller
 
             $body .= "</u>\n";
         } else {
-            $body .= "\n<b>" . xlt('Refills') . ":</b> <u>0 (" . xlt('Zero') . ")</u>\n";
+            $body .= "\n<u><b>No Refill</b></u>\n";
         }
 
-        $note = $p->get_note();
-        if ($note != '') {
-            $body .= "\n" . text($note) . "\n";
-        }
 
         return $body;
     }
@@ -795,7 +797,7 @@ class C_Prescription extends Controller
                 $this->multiprint_header($pdf, $p);
             }
 
-            if (++$on_this_page > 3 || $p->provider->id != $this->providerid) {
+            if (++$on_this_page > 4 || $p->provider->id != $this->providerid) {
                 $this->multiprint_footer($pdf, $p);
                 $pdf->ezNewPage();
                 $this->multiprint_header($pdf, $p);
