@@ -347,7 +347,7 @@ class C_Prescription extends Controller
 	$pdf->ezText('<b>' . "Internal Medicine-Geriatrics" . '</b>', 12);
 	$pdf->ezNewPage();
 //        $pdf->ezColumnsStart(array('num' => 2, 'gap' => 10));
-        $res = sqlQuery("SELECT concat('<b>',f.name,'</b>\n',f.street,'\n',f.city,', ',f.state,' ',f.postal_code,'\nTel:',f.phone,if(f.fax != '',concat('\nFax: ',f.fax),'')) addr FROM users JOIN facility AS f ON f.name = users.facility where users.id ='" .
+        $res = sqlQuery("SELECT concat('<b>',f.name,'</b>\n',f.street,'\n',f.city,', ',f.state,' ',f.postal_code,'\nTel:',f.phone,if(f.email != '',concat('\nEmail: ',f.email),'')) addr FROM users JOIN facility AS f ON f.name = users.facility where users.id ='" .
             add_escape_custom($p->provider->id) . "'");
         $pdf->ezText($res['addr'], 12);
         $my_y = $pdf->y;
@@ -435,8 +435,8 @@ class C_Prescription extends Controller
         echo ("<td>\n");
         $res = sqlQuery("SELECT concat('<b>',f.name,'</b>\n',f.street,'\n',f.city,', ',f.state,' ',f.postal_code,'\nTel:',f.phone,if(f.fax != '',concat('\nFax: ',f.fax),'')) addr FROM users JOIN facility AS f ON f.name = users.facility where users.id ='" . add_escape_custom($p->provider->id) . "'");
         if (!empty($res)) {
-            $patterns = array ('/\n/','/Tel:/','/Fax:/');
-            $replace = array ('<br />', xl('Tel') . ':', xl('Fax') . ':');
+            $patterns = array ('/\n/','/Tel:/','/Email:/');
+            $replace = array ('<br />', xl('Tel') . ':', xl('Email') . ':');
             $res = preg_replace($patterns, $replace, $res);
         }
 
@@ -697,7 +697,7 @@ class C_Prescription extends Controller
 
         $body .= "</b>     <i>" .
             text($p->substitute_array[$p->get_substitute()]) . "</i>---------- " .
-            '<b>' . xlt('#') . ' </b><u>' . text($p->get_quantity()) . $num_words . "</u>\n\n" .
+            '<b>' . xlt('#') . ' </b>' . text($p->get_quantity()) . $num_words . "\n\n" .
             '<b>' . xlt('Sig') . ':</b> ' . text($p->get_dosage()) . ' ' . text($p->form_array[$p->get_form()]) . ' ' .
             text($route_sub_array[$p->route_array[$p->get_route()]]) . ' ' . text($interval_sub_array[$p->interval_array[$p->get_interval()]]) . "\n";
 
