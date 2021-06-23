@@ -568,7 +568,7 @@ $title = $drug_id ? xl("Update Drug") : xl("Add Drug");
 
     <div class="form-group mt-3 drugsonly">
         <label class="font-weight-bold"><?php echo xlt('Size'); ?>:</label>
-        <input class="form-control" size="5" name="form_size" maxlength="7" value='<?php echo attr($row['size']) ?>' />
+        <input class="form-control" size="5" name="form_size" maxlength="20" value='<?php echo attr($row['size']) ?>' />
     </div>
 
     <div class="form-group mt-3 drugsonly" title='<?php echo xlt('Measurement Units'); ?>'>
