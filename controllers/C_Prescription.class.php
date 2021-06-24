@@ -653,7 +653,7 @@ class C_Prescription extends Controller
 		"p.m."   => "in the afternoon",
 		"h"      => "hour",
 		"h.s."   => "at bedtime",
-		"p.r.n"  => "as needed",
+		"p.r.n." => "as needed",
 		"stat"   => "immediately",
 	];
 
