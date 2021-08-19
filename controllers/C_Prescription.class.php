@@ -32,6 +32,7 @@ class C_Prescription extends Controller
     var $RxList;
     var $prescriptions;
     var $cont_subst = false;
+    var $pass;
 
     function __construct($template_mod = "general")
     {
@@ -339,10 +340,23 @@ class C_Prescription extends Controller
     function multiprint_header(&$pdf, $p)
     {
         $this->providerid = $p->provider->id;
+	$cont = amcCollect('e_prescribe_cont_subst_amc', $p->get_patient_id(), 'prescriptions', $p->get_id());
         //print header
+	if ($cont != NULL) {
+		if ($p->pass == NULL) {
+			$pdf->ezText('<b>' . 'ORIGINAL COPY' . '<\b>', 16);
+			$p->pass = 2;
+		} else if ($p->pass == 2) {
+			$pdf->ezText('<b>' . 'DUPLICATE COPY' . '<\b>', 16);
+			$p->pass = 3;
+		}
+		$pdf->ezText(' ');
+	}
 	$pdf->ezColumnsStart(array('num' => 3, 'gap' => 2));
+
         $pdf->ezImage($GLOBALS['oer_config']['prescriptions']['logo'], '', '50', '', 'left', '');
         $pdf->ezNewPage();
+
 	$pdf->ezText('<b>' . $p->provider->get_name_display() . xl(', MD') . '</b>', 16);
 	$pdf->ezText('<b>' . "Internal Medicine-Geriatrics" . '</b>', 12);
 	$pdf->ezNewPage();
@@ -792,6 +806,7 @@ class C_Prescription extends Controller
         $ids = preg_split('/::/', substr($id, 1, strlen($id) - 2), -1, PREG_SPLIT_NO_EMPTY);
         foreach ($ids as $id) {
             $p = new Prescription($id);
+
             // if ($print_header == true) {
             if ($on_this_page == 0) {
                 $this->multiprint_header($pdf, $p);
@@ -810,9 +825,37 @@ class C_Prescription extends Controller
 
         $this->multiprint_footer($pdf, $p);
 
+	//Duplicate copy for controlled substance prescription
+	if ($p->pass == 2) {
+		$pdf->ezNewPage();
+		foreach ($ids as $id) {
+			$p = new Prescription($id);
+			$p->pass = 2;
+			$on_this_page = 0;
+
+	            // if ($print_header == true) {
+			if ($on_this_page == 0) {
+				$this->multiprint_header($pdf, $p);
+			}
+
+			if (++$on_this_page > 4 || $p->provider->id != $this->providerid) {
+		                $this->multiprint_footer($pdf, $p);
+		                $pdf->ezNewPage();
+		                $this->multiprint_header($pdf, $p);
+		                // $print_header = false;
+		                $on_this_page = 1;
+			}
+
+		$this->multiprint_body($pdf, $p);
+	        }
+
+		$this->multiprint_footer($pdf, $p);
+	}
+
         $pFirstName = $p->patient->fname; //modified by epsdky for prescription filename change to include patient name and ID
         $pFName = convert_safe_file_dir_name($pFirstName);
         $modedFileName = "Rx_{$pFName}_{$p->patient->id}.pdf";
+
         $pdf->ezStream(array('Content-Disposition' => $modedFileName));
         return;
     }
