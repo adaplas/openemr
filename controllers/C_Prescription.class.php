@@ -343,12 +343,12 @@ class C_Prescription extends Controller
 	$cont = amcCollect('e_prescribe_cont_subst_amc', $p->get_patient_id(), 'prescriptions', $p->get_id());
         //print header
 	if ($cont != NULL) {
-		if ($p->pass == NULL) {
-			$pdf->ezText('<b>' . 'ORIGINAL COPY' . '<\b>', 16);
+		if ($p->pass == 1) {
+ 	    		$pdf->ezText('<b>' . 'ORIGINAL COPY' . '<\b>', 16);
 			$p->pass = 2;
 		} else if ($p->pass == 2) {
 			$pdf->ezText('<b>' . 'DUPLICATE COPY' . '<\b>', 16);
-			$p->pass = 3;
+			$p->pass = 0;
 		}
 		$pdf->ezText(' ');
 	}
@@ -798,59 +798,48 @@ class C_Prescription extends Controller
         $pdf->ezSetMargins($GLOBALS['rx_top_margin'], $GLOBALS['rx_bottom_margin'], $GLOBALS['rx_left_margin'], $GLOBALS['rx_right_margin']);
         $pdf->selectFont('Helvetica');
 
-        // $print_header = true;
-        $on_this_page = 0;
+	//print prescriptions body
+	$this->_state = false; // Added by Rod - see Controller.class.php
+	$ids = preg_split('/::/', substr($id, 1, strlen($id) - 2), -1, PREG_SPLIT_NO_EMPTY);
 
-        //print prescriptions body
-        $this->_state = false; // Added by Rod - see Controller.class.php
-        $ids = preg_split('/::/', substr($id, 1, strlen($id) - 2), -1, PREG_SPLIT_NO_EMPTY);
-        foreach ($ids as $id) {
-            $p = new Prescription($id);
+	$loop = 0;
+	$pass = 1;
+	do {
+	        // $print_header = true;
+		$on_this_page = 0;
 
-            // if ($print_header == true) {
-            if ($on_this_page == 0) {
-                $this->multiprint_header($pdf, $p);
-            }
-
-            if (++$on_this_page > 4 || $p->provider->id != $this->providerid) {
-                $this->multiprint_footer($pdf, $p);
-                $pdf->ezNewPage();
-                $this->multiprint_header($pdf, $p);
-                // $print_header = false;
-                $on_this_page = 1;
-            }
-
-            $this->multiprint_body($pdf, $p);
-        }
-
-        $this->multiprint_footer($pdf, $p);
-
-	//Duplicate copy for controlled substance prescription
-	if ($p->pass == 2) {
-		$pdf->ezNewPage();
 		foreach ($ids as $id) {
 			$p = new Prescription($id);
-			$p->pass = 2;
-			$on_this_page = 0;
-
-	            // if ($print_header == true) {
+			$p->pass = $pass;
+            
+			// if ($print_header == true) {
 			if ($on_this_page == 0) {
 				$this->multiprint_header($pdf, $p);
 			}
 
 			if (++$on_this_page > 4 || $p->provider->id != $this->providerid) {
-		                $this->multiprint_footer($pdf, $p);
-		                $pdf->ezNewPage();
-		                $this->multiprint_header($pdf, $p);
-		                // $print_header = false;
-		                $on_this_page = 1;
+				$this->multiprint_footer($pdf, $p);
+				$pdf->ezNewPage();
+				$this->multiprint_header($pdf, $p);
+				// $print_header = false;
+				$on_this_page = 1;
 			}
 
-		$this->multiprint_body($pdf, $p);
-	        }
+			$this->multiprint_body($pdf, $p);
+		}
 
 		$this->multiprint_footer($pdf, $p);
 	}
+
+
+		if ($p->pass == 2) {
+			$pdf->ezNewPage();
+			$loop = 1;
+			$pass = $p->pass;
+		} else {
+			$loop = 0;
+		}
+        } while ($loop != 0);
 
         $pFirstName = $p->patient->fname; //modified by epsdky for prescription filename change to include patient name and ID
         $pFName = convert_safe_file_dir_name($pFirstName);
