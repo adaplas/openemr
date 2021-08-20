@@ -358,7 +358,7 @@ class C_Prescription extends Controller
         $pdf->ezNewPage();
 
 	$pdf->ezText('<b>' . $p->provider->get_name_display() . xl(', MD') . '</b>', 16);
-	$pdf->ezText('<b>' . "Internal Medicine-Geriatrics" . '</b>', 12);
+	$pdf->ezText('<b>' . $p->provider->get_specialty() . '</b>', 12);
 	$pdf->ezNewPage();
 //        $pdf->ezColumnsStart(array('num' => 2, 'gap' => 10));
         $res = sqlQuery("SELECT concat('<b>',f.name,'</b>\n',f.street,'\n',f.city,', ',f.state,' ',f.postal_code,'\nTel:',f.phone,if(f.email != '',concat('\nEmail: ',f.email),'')) addr FROM users JOIN facility AS f ON f.name = users.facility where users.id ='" .
@@ -602,7 +602,7 @@ class C_Prescription extends Controller
         }
 
 //        $pdf->ezText("\n\n" . xl('Signature') . ":________________________________\n" . xl('Date') . ": " . date('Y-m-d'), 12);
-        $pdf->ezText("\n\n" . '<b>' . "________________________________\n" . xl('Antonino A. Daplas, MD') . '</b>', 12);
+        $pdf->ezText("\n\n" . '<b>' . "________________________________\n" . xl($p->provider->get_name_display()) . ', MD' . '</b>', 12);
 
         if ($GLOBALS['rx_enable_SLN']) {
             if ($this->is_faxing || $GLOBALS['rx_show_SLN']) {
