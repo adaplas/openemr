@@ -406,6 +406,7 @@ class C_Prescription extends Controller
             $pdf->ezSetY($my_y);
         }
 
+
         $pdf->ezText('', 10);
         $pdf->setLineStyle(1);
         $pdf->ezColumnsStart(array('num' => 2));
@@ -789,9 +790,6 @@ class C_Prescription extends Controller
 
     function multiprint_action($id = "")
     {
-	if ($_SESSION['encounter'] == NULL)
-		return;
-
         $_POST['process'] = "true";
         if (empty($id)) {
             $this->function_argument_error();
@@ -800,6 +798,23 @@ class C_Prescription extends Controller
         $pdf = new Cezpdf($GLOBALS['rx_paper_size']);
         $pdf->ezSetMargins($GLOBALS['rx_top_margin'], $GLOBALS['rx_bottom_margin'], $GLOBALS['rx_left_margin'], $GLOBALS['rx_right_margin']);
         $pdf->selectFont('Helvetica');
+
+        //if no active encounter, exit
+	if ($_SESSION['encounter'] == NULL) {
+		$pdf->ezText("Choose or create encounter");
+		$pdf->ezStream();
+		return;
+	}
+
+	$result = sqlQuery("SELECT form_encounter.date as encdate FROM form_encounter where encounter = ?", $_SESSION['encounter']);
+	$curdate = date('Y-m-d');
+	$encdate = date('Y-m-d', strtotime($result['encdate']));
+
+	if ($curdate != $encdate) {
+		$pdf->ezText("Current date is not the same as Encounter date. Create encounter for today in order to print");
+		$pdf->ezStream();
+		return;
+	}
 
 	//print prescriptions body
 	$this->_state = false; // Added by Rod - see Controller.class.php
