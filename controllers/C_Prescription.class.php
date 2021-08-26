@@ -789,6 +789,9 @@ class C_Prescription extends Controller
 
     function multiprint_action($id = "")
     {
+	if ($_SESSION['encounter'] == NULL)
+		return;
+
         $_POST['process'] = "true";
         if (empty($id)) {
             $this->function_argument_error();
@@ -953,7 +956,7 @@ class C_Prescription extends Controller
 
     function _print_prescription($p, &$toFile)
     {
-        $pdf = new Cezpdf($GLOBALS['rx_paper_size']);
+	$pdf = new Cezpdf($GLOBALS['rx_paper_size']);
         $pdf->ezSetMargins($GLOBALS['rx_top_margin'], $GLOBALS['rx_bottom_margin'], $GLOBALS['rx_left_margin'], $GLOBALS['rx_right_margin']);
 
         $pdf->selectFont('Helvetica');
