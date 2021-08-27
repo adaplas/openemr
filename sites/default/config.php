@@ -48,7 +48,7 @@ $GLOBALS['oer_config']['prescriptions']['logo_pic'] = "Rx.png";
 // not printed prescriptions.
 $GLOBALS['oer_config']['prescriptions']['sig_pic'] = "sig.png";
 //Option to used signature graphic or not
-$GLOBALS['oer_config']['prescriptions']['use_signature'] = false;
+$GLOBALS['oer_config']['prescriptions']['use_signature'] = "true";
 
 // To print the prescription medication area on a grey background:
 $GLOBALS['oer_config']['prescriptions']['shading'] = false;
