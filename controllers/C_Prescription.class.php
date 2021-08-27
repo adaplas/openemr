@@ -602,8 +602,20 @@ class C_Prescription extends Controller
             }
         }
 
+	$epresc = amcCollect('e_prescribe_amc', $p->get_patient_id(), 'prescriptions', $p->get_id());
+	if ($epresc != NULL && $this->pconfig['use_signature']) {
+		$sigfile = str_replace('{userid}', $_SESSION["authUser"], $this->pconfig['signature']);
+		if (file_exists($sigfile)) {
+
+			// $pdf->ezImage($sigfile, "", "", "none", "left");
+			$pdf->ezImage($sigfile,'', '60', '', 'left', '');
+		}
+	} else {
+		$pdf->ezText("\n\n", 12);
+	}
+
 //        $pdf->ezText("\n\n" . xl('Signature') . ":________________________________\n" . xl('Date') . ": " . date('Y-m-d'), 12);
-        $pdf->ezText("\n\n" . '<b>' . "________________________________\n" . xl($p->provider->get_name_display()) . ', MD' . '</b>', 12);
+        $pdf->ezText('<b>' . "________________________________\n" . xl($p->provider->get_name_display()) . ', MD' . '</b>', 12);
 
         if ($GLOBALS['rx_enable_SLN']) {
             if ($this->is_faxing || $GLOBALS['rx_show_SLN']) {
