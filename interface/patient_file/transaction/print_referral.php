@@ -33,16 +33,16 @@ $TEMPLATE_LABELS = array(
   'label_address'               => xlt('Address'),
   'label_postal'                => xlt('Postal'),
   'label_phone'                 => xlt('Phone'),
-  'label_ref_reason'            => xlt('Reference Reason'),
+  'label_ref_reason'            => xlt('Refererral Reason'),
   'label_diagnosis'             => xlt('Diagnosis'),
-  'label_ref_class'             => xlt('Reference classification (risk level)'),
+  'label_ref_class'             => xlt('Referral classification (risk level)'),
   'label_dr_name_sig'           => xlt('Doctor\'s name and signature'),
   'label_refer_to'              => xlt('Referred to'),
   'label_clinic'                => xlt('Health centre/clinic'),
   'label_history_summary'       => xlt('Client medical history summary'),
-  'label_bp'                    => xlt('Blood pressure'),
-  'label_ht'                    => xlt('Height'),
-  'label_wt'                    => xlt('Weight'),
+  'label_bp'                    => xlt('Blood pressure (mm/Hg)'),
+  'label_ht'                    => xlt('Height (in)'),
+  'label_wt'                    => xlt('Weight (lbsl)'),
   'label_ref_name_sig'          => xlt('Referer name and signature'),
   'label_special_name_sig'      => xlt('Specialist name and signature'),
   'label_form2_title'           => xlt('Counter Referral Form'),
@@ -54,11 +54,11 @@ $TEMPLATE_LABELS = array(
   'label_subhead_clinic'        => xlt('Clinic Copy'),
   'label_subhead_patient'       => xlt('Client Copy'),
   'label_subhead_referred'      => xlt('For Referred Organization/Practitioner'),
-  'label_ins_name'              => xlt('Insurance'),
-  'label_ins_plan_name'         => xlt('Plan'),
-  'label_ins_policy'            => xlt('Policy'),
-  'label_ins_group'             => xlt('Group'),
-  'label_ins_date'              => xlt('Effective Date')
+//  'label_ins_name'              => xlt('Insurance'),
+//  'label_ins_plan_name'         => xlt('Plan'),
+//  'label_ins_policy'            => xlt('Policy'),
+//  'label_ins_group'             => xlt('Group'),
+//  'label_ins_date'              => xlt('Effective Date')
 );
 
 if (!is_file($template_file)) {
@@ -89,7 +89,7 @@ if ($transid) {
 if ($patient_id) {
     $patdata = getPatientData($patient_id);
     $patient_age = getPatientAge(str_replace('-', '', $patdata['DOB']));
-    $insurancedata = getInsuranceData($patient_id);
+//   $insurancedata = getInsuranceData($patient_id);
 } else {
     $patdata = array('DOB' => '');
     $patient_age = '';
@@ -121,15 +121,19 @@ if (empty($torow)) {
     );
 }
 
-$vrow = sqlQuery("SELECT * FROM form_vitals WHERE " .
-  "pid = ? AND date <= ? " .
-  "ORDER BY date DESC LIMIT 1", array($patient_id, $refer_date . " 23:59:59"));
+//If refer_date is null, then don't do an sql query. It will result in an error
+//of invalid datetime format
+if ($refer_date != NULL) {
+	$vrow = sqlQuery("SELECT * FROM form_vitals WHERE " .
+	"pid = ? AND date <= ? " .
+	"ORDER BY date DESC LIMIT 1", array($patient_id, $refer_date . " 23:59:59"));
+}
 if (empty($vrow)) {
-    $vrow = array(
-    'bps' => '',
-    'bpd' => '',
-    'weight' => '',
-    'height' => '',
+	$vrow = array(
+	'bps' => '',
+	'bpd' => '',
+	'weight' => '',
+	'height' => '',
     );
 }
 
@@ -215,11 +219,11 @@ foreach ($TEMPLATE_LABELS as $key => $value) {
     $s = str_replace("{" . $key . "}", $value, $s);
 }
 
-if (!empty($insurancedata)) {
-    foreach ($insurancedata as $key => $value) {
-        $s = str_replace("{insurance_$key}", text($value), $s);
-    }
-}
+// if (!empty($insurancedata)) {
+//     foreach ($insurancedata as $key => $value) {
+//         $s = str_replace("{insurance_$key}", text($value), $s);
+//     }
+// }
 
 // A final pass to clear any unmatched variables:
 $s = preg_replace('/\{\S+\}/', '', $s);
