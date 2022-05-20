@@ -684,6 +684,24 @@ class C_Prescription extends Controller
 		"stat"   => "immediately",
 	];
 
+	$perday_sub_array = [
+		"b.i.d." => 2,
+		"t.i.d." => 3,
+		"q.i.d." => 4,
+		"q.3h"   => 8,
+		"q.4h"   => 6,
+		"q.5h"   => 5,
+		"q.6h"   => 4,
+		"q.8h"   => 3,
+		"q.d."   => 1,
+		"a.c."   => 3,
+		"p.c."   => 3,
+		"a.m."   => 1,
+		"p.m."   => 1,
+		"h"      => 24,
+		"h.s."   => 1,
+	];
+
 	$route_sub_array = [
 		"Per Oris"		=> "by mouth",
 		"Per Rectum"		=> "per rectum",
@@ -717,16 +735,24 @@ class C_Prescription extends Controller
                 $num_words = ' ';          
 	}
 
+	$duration = '';
         $body = '<b>' . xlt('Rx') . ': ' . text($p->get_drug()) . ' ' . text($p->get_size()) . ' ' . text($p->get_unit_display());
         if ($p->get_form()) {
-            $body .= ' [' . text($p->form_array[$p->get_form()]) . "]";
+		$body .= ' [' . text($p->form_array[$p->get_form()]) . "]";
+		if ($p->get_form() == 2 || $p->get_form() == 3) { //tablet or capsule only
+			$dur = (int) ($p->get_quantity() / ($perday_sub_array[$p->interval_array[$p->get_interval()]] * $p->get_dosage()));
+			if ($dur > 0) {
+				$duration = " for " . text($dur) . " " . text($dur > 1 ? "days" : "day" );
+			}
+		}
         }
 
         $body .= "</b>     <i>" .
             text($p->substitute_array[$p->get_substitute()]) . "</i>---------- " .
             '<b>' . xlt('#') . ' </b>' . text($p->get_quantity()) . $num_words . "\n\n" .
             '<b>' . xlt('Sig') . ':</b> ' . text($p->get_dosage()) . ' ' . text($p->form_array[$p->get_form()]) . ' ' .
-            text($route_sub_array[$p->route_array[$p->get_route()]]) . ' ' . text($interval_sub_array[$p->interval_array[$p->get_interval()]]) . "\n";
+            text($route_sub_array[$p->route_array[$p->get_route()]]) . ' ' . text($interval_sub_array[$p->interval_array[$p->get_interval()]]) .
+            $duration . "\n";
 
         $note = $p->get_note();
         if ($note != '') {
@@ -810,6 +836,7 @@ class C_Prescription extends Controller
         $pdf = new Cezpdf($GLOBALS['rx_paper_size']);
         $pdf->ezSetMargins($GLOBALS['rx_top_margin'], $GLOBALS['rx_bottom_margin'], $GLOBALS['rx_left_margin'], $GLOBALS['rx_right_margin']);
         $pdf->selectFont('Helvetica');
+	//        $pdf->setColor(1.0, 0.08, 0.58);
 
         //if no active encounter, exit
 	if ($_SESSION['encounter'] == NULL) {
