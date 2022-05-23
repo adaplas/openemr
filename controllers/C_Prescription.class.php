@@ -615,7 +615,8 @@ class C_Prescription extends Controller
 	}
 
 //        $pdf->ezText("\n\n" . xl('Signature') . ":________________________________\n" . xl('Date') . ": " . date('Y-m-d'), 12);
-        $pdf->ezText('<b>' . "________________________________\n" . xl($p->provider->get_name_display()) . ', MD' . '</b>', 12);
+        $pdf->ezText('<b>' . "________________________________                  Follow up: ____________________\n" .
+			xl($p->provider->get_name_display()) . ', MD' . '</b>', 12);
 
         if ($GLOBALS['rx_enable_SLN']) {
             if ($this->is_faxing || $GLOBALS['rx_show_SLN']) {
