@@ -726,6 +726,21 @@ class C_Prescription extends Controller
 		"Intramuscular"		=> "intramuscularly",
 	];
 
+	$form_sub_array = [
+		"suspension"		=> "suspension",
+		"tablet"		=> "tablet",
+		"capsule"		=> "capsule",
+		"solution"		=> "solution",
+		"tsp"			=> "tsp",
+		"ml"			=> "ml",
+		"units"			=> "unit",
+		"inhalations"		=> "inhalation",
+		"gtts(drops)"		=> "drop",
+		"cream"			=> "cream",
+		"ointment"		=> "ointment",
+		"puff"			=> "puff",
+	];
+	
 	$f = new NumberFormatter("en", NumberFormatter::SPELLOUT);
 	$cont = amcCollect('e_prescribe_cont_subst_amc', $p->get_patient_id(), 'prescriptions', $p->get_id());
 
@@ -751,9 +766,10 @@ class C_Prescription extends Controller
         $body .= "</b>     <i>" .
             text($p->substitute_array[$p->get_substitute()]) . "</i>---------- " .
             '<b>' . xlt('#') . ' </b>' . text($p->get_quantity()) . $num_words . "\n\n" .
-            '<b>' . xlt('Sig') . ':</b> ' . text($p->get_dosage()) . ' ' . text($p->form_array[$p->get_form()]) . ' ' .
-            text($route_sub_array[$p->route_array[$p->get_route()]]) . ' ' . text($interval_sub_array[$p->interval_array[$p->get_interval()]]) .
-            $duration . " ";
+            '<b>' . xlt('Sig') . ':</b> ' . text($p->get_dosage()) . ' ' . text($form_sub_array[$p->form_array[$p->get_form()]]) . 
+           			($p->get_dosage() > 1 ? "s" : "") . ' ' . text($route_sub_array[$p->route_array[$p->get_route()]]) . ' ' .
+           			 text($interval_sub_array[$p->interval_array[$p->get_interval()]]) . 
+           $duration . " ";
 
         $note = $p->get_note();
         if ($note != '') {
