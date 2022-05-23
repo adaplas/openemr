@@ -752,12 +752,13 @@ class C_Prescription extends Controller
             '<b>' . xlt('#') . ' </b>' . text($p->get_quantity()) . $num_words . "\n\n" .
             '<b>' . xlt('Sig') . ':</b> ' . text($p->get_dosage()) . ' ' . text($p->form_array[$p->get_form()]) . ' ' .
             text($route_sub_array[$p->route_array[$p->get_route()]]) . ' ' . text($interval_sub_array[$p->interval_array[$p->get_interval()]]) .
-            $duration . "\n";
+            $duration . " ";
 
         $note = $p->get_note();
         if ($note != '') {
-            $body .= text($note) . "\n";
+            $body .= "(" . text($note) . ")";
         }
+	$body .= "\n";
 
         if ($p->get_refills() > 0) {
             $body .= "\n<b>" . xlt('Refills') . ":</b> <u>" .  text($p->get_refills());
