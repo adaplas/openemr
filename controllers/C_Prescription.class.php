@@ -740,7 +740,15 @@ class C_Prescription extends Controller
 		"ointment"		=> "ointment",
 		"puff"			=> "puff",
 	];
+
+	$fraction_sub_array = [
+		"1/2"			=> 0.5,
+		"1/4"			=> 0.25,
+		"1 1/2"			=> 1.5,
+		"2 1/2"			=> 2.5,
+	];
 	
+
 	$f = new NumberFormatter("en", NumberFormatter::SPELLOUT);
 	$cont = amcCollect('e_prescribe_cont_subst_amc', $p->get_patient_id(), 'prescriptions', $p->get_id());
 
@@ -751,12 +759,14 @@ class C_Prescription extends Controller
                 $num_words = ' ';          
 	}
 
+	$dosage = ($fraction_sub_array[$p->get_dosage()] != NULL ? $fraction_sub_array[$p->get_dosage()] : $p->get_dosage());
 	$duration = '';
         $body = '<b>' . xlt('Rx') . ': ' . text($p->get_drug()) . ' ' . text($p->get_size()) . ' ' . text($p->get_unit_display());
+
         if ($p->get_form()) {
 		$body .= ' [' . text($p->form_array[$p->get_form()]) . "]";
 		if ($p->get_form() == 2 || $p->get_form() == 3) { //tablet or capsule only
-			$dur = (int) ($p->get_quantity() / ($perday_sub_array[$p->interval_array[$p->get_interval()]] * $p->get_dosage()));
+			$dur = (int) ($p->get_quantity() / ($perday_sub_array[$p->interval_array[$p->get_interval()]] * $dosage));
 			if ($dur > 0) {
 				$duration = " for " . text($dur) . " " . text($dur > 1 ? "days" : "day" );
 			}
@@ -767,10 +777,9 @@ class C_Prescription extends Controller
             text($p->substitute_array[$p->get_substitute()]) . "</i>---------- " .
             '<b>' . xlt('#') . ' </b>' . text($p->get_quantity()) . $num_words . "\n\n" .
             '<b>' . xlt('Sig') . ':</b> ' . text($p->get_dosage()) . ' ' . text($form_sub_array[$p->form_array[$p->get_form()]]) . 
-           			($p->get_dosage() > 1 ? "s" : "") . ' ' . text($route_sub_array[$p->route_array[$p->get_route()]]) . ' ' .
-           			 text($interval_sub_array[$p->interval_array[$p->get_interval()]]) . 
-           $duration . " ";
-
+             			($dosage > 1 ? "s" : "") . ' ' . text($route_sub_array[$p->route_array[$p->get_route()]]) . ' ' .
+            			 text($interval_sub_array[$p->interval_array[$p->get_interval()]]) . $duration . " ";
+ 
         $note = $p->get_note();
         if ($note != '') {
             $body .= "(" . text($note) . ")";
