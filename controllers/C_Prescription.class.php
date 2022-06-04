@@ -913,9 +913,6 @@ class C_Prescription extends Controller
 		}
 
 		$this->multiprint_footer($pdf, $p);
-	}
-
-
 		if ($p->pass == 2) {
 			$pdf->ezNewPage();
 			$loop = 1;
