@@ -576,17 +576,49 @@ class C_Prescription extends Controller
         return $this->multiprint_footer($pdf, $p);
     }
 
+    function print_signature_lines(&$pdf, $p)
+    {
+        if ($GLOBALS['rx_enable_SLN']) {
+            if ($this->is_faxing || $GLOBALS['rx_show_SLN']) {
+                $pdf->ezText('<b>' . xl('PRC #') . ': </b>' . 
+                $p->provider->state_license_number, 12);
+            } else {
+                $pdf->ezText('<b>' . xl('PRC #') . ': </b> ___________________', 12);
+            }
+       }
+
+        if ($GLOBALS['rx_enable_NPI']) {
+            if ($this->is_faxing || $GLOBALS['rx_show_NPI']) {
+                    $pdf->ezText('<b>' . xl('PTR #') . ': </b>' . $p->provider->npi, 12);
+            } else {
+                $pdf->ezText('<b>' . xl('PTR #') . ': </b> _________________________', 12);
+            }
+        }
+
+       if ($GLOBALS['rx_enable_DEA'] && $p->cont_subst != NULL) {
+            if ($this->is_faxing || $GLOBALS['rx_show_DEA']) {
+                $pdf->ezText('<b>' . xl('S2    #') . ': </b>' . 
+                $p->provider->federal_drug_id, 12);
+            } else {
+                $pdf->ezText('<b>' . xl('S2    #') . ': </b> ________________________', 12);
+            }
+        }
+    }
+
     function multiprint_footer(&$pdf, $p)
     {
         if ($this->pconfig['use_signature'] && ( $this->is_faxing || $this->is_print_to_fax )) {
             $sigfile = str_replace('{userid}', $_SESSION["authUser"], $this->pconfig['signature']);
             if (file_exists($sigfile)) {
-                $pdf->ezText(xl('Signature') . ": ", 12);
                 // $pdf->ezImage($sigfile, "", "", "none", "left");
-                $pdf->ezImage($sigfile, "", "", "none", "center");
-                $pdf->ezText(xl('Date') . ": " . date('Y-m-d'), 12);
+                $pdf->ezImage($sigfile, "", '60', "", "none", "center");
+	        $pdf->ezText('<b>' . "________________________________\n" .
+	        	xl($p->provider->get_name_display()) . ', MD' . '</b>', 12);
+
+		$this->print_signature_lines($pdf, $p);
+		
                 if ($this->is_print_to_fax) {
-                    $pdf->ezText(xl('Please do not accept this prescription unless it was received via facsimile.'));
+                    $pdf->ezText(xl('This is a digital prescription.'));
                 }
 
                 $addenumFile = $this->pconfig['addendum_file'];
@@ -618,31 +650,7 @@ class C_Prescription extends Controller
         $pdf->ezText('<b>' . "________________________________                  Follow up: ____________________\n" .
 			xl($p->provider->get_name_display()) . ', MD' . '</b>', 12);
 
-        if ($GLOBALS['rx_enable_SLN']) {
-            if ($this->is_faxing || $GLOBALS['rx_show_SLN']) {
-                $pdf->ezText('<b>' . xl('PRC #') . ': </b>' . $p->provider->state_license_number, 12);
-            } else {
-                $pdf->ezText('<b>' . xl('PRC #') . ': </b> ___________________', 12);
-            }
-
-        if ($GLOBALS['rx_enable_NPI']) {
-            if ($this->is_faxing || $GLOBALS['rx_show_NPI']) {
-                    $pdf->ezText('<b>' . xl('PTR #') . ': </b>' . $p->provider->npi, 12);
-            } else {
-                $pdf->ezText('<b>' . xl('PTR #') . ': </b> _________________________', 12);
-            }
-        }
-
-       }        if ($GLOBALS['rx_enable_DEA'] && $p->cont_subst != NULL) {
-            if ($this->is_faxing || $GLOBALS['rx_show_DEA']) {
-                $pdf->ezText('<b>' . xl('S2    #') . ': </b>' . $p->provider->federal_drug_id, 12);
-            } else {
-                $pdf->ezText('<b>' . xl('S2    #') . ': </b> ________________________', 12);
-            }
-        }
-
-
-
+     	$this->print_signature_lines($pdf, $p);
 }
 
     function multiprintcss_footer()
