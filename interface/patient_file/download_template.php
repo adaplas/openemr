@@ -106,7 +106,7 @@ function getIssues($type)
 // Top level function for scanning and replacement of a file's contents.
 function doSubs($s)
 {
-    global $ptrow, $hisrow, $enrow, $nextLocation, $keyLocation, $keyLength;
+    global $ptrow, $mdrow, $hisrow, $enrow, $nextLocation, $keyLocation, $keyLength;
     global $groupLevel, $groupCount, $itemSeparator, $pid, $encounter;
 
     $nextLocation = 0;
@@ -202,6 +202,31 @@ function doSubs($s)
             }
 
             $s = keyReplace($s, dataFixup($tmp, xl('Referer')));
+        } elseif (keySearch($s, '{ProviderMD}')) {
+            $tmp = empty($mdrow['ur_fname']) ? '' : $mdrow['ur_fname'];
+            if (!empty($ptrow['ur_mname'])) {
+                if ($tmp) {
+                    $tmp .= ' ';
+                }
+
+                $tmp .= $mdrow['ur_mname'];
+            }
+
+            if (!empty($mdrow['ur_lname'])) {
+                if ($tmp) {
+                    $tmp .= ' ';
+                }
+
+                $tmp .= $mdrow['ur_lname'];
+            }
+
+            $s = keyReplace($s, dataFixup($tmp, xl('Provider')));
+        } elseif (keySearch($s, '{MD_License}')) {
+            $tmp = empty($mdrow['ur_license']) ? '' : $mdrow['ur_license'];
+            $s = keyReplace($s, dataFixup($tmp, xl('License')));
+        } elseif (keySearch($s, '{MD_NPI}')) {
+            $tmp = empty($mdrow['ur_npi']) ? '' : $mdrow['ur_npi'];
+            $s = keyReplace($s, dataFixup($tmp, xl('NPI')));
         } elseif (keySearch($s, '{Allergies}')) {
             $tmp = generate_plaintext_field(array('data_type' => '24','list_id' => ''), '');
             $s = keyReplace($s, dataFixup($tmp, xl('Allergies')));
@@ -330,11 +355,21 @@ function doSubs($s)
 
 // Get patient demographic info.
 $ptrow = sqlQuery("SELECT pd.*, " .
-  "ur.fname AS ur_fname, ur.mname AS ur_mname, ur.lname AS ur_lname " .
+  "ur.fname AS ur_fname, ur.mname AS ur_mname, ur.lname AS ur_lname, " .
+  "ur.state_license_number AS ur_license, " .
+  "ur.npi as ur_npi " .
   "FROM patient_data AS pd " .
   "LEFT JOIN users AS ur ON ur.id = pd.ref_providerID " .
   "WHERE pd.pid = ?", array($pid));
 
+$mdrow = sqlQuery("SELECT pd.*, " .
+  "ur.fname AS ur_fname, ur.mname AS ur_mname, ur.lname AS ur_lname, " .
+  "ur.state_license_number AS ur_license, " .
+  "ur.npi AS ur_npi " .
+  "FROM patient_data AS pd " .
+  "LEFT JOIN users AS ur ON ur.id = pd.providerID " .
+  "WHERE pd.pid = ?", array($pid));
+  
 $hisrow = sqlQuery("SELECT * FROM history_data WHERE pid = ? " .
   "ORDER BY date DESC LIMIT 1", array($pid));
 
