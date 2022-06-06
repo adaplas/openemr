@@ -227,6 +227,9 @@ function doSubs($s)
         } elseif (keySearch($s, '{MD_NPI}')) {
             $tmp = empty($mdrow['ur_npi']) ? '' : $mdrow['ur_npi'];
             $s = keyReplace($s, dataFixup($tmp, xl('NPI')));
+        } elseif (keySearch($s, '{MD_Specialty}')) {
+            $tmp = empty($mdrow['ur_specialty']) ? '' : $mdrow['ur_specialty'];
+            $s = keyReplace($s, dataFixup($tmp, xl('Specialty')));
         } elseif (keySearch($s, '{Allergies}')) {
             $tmp = generate_plaintext_field(array('data_type' => '24','list_id' => ''), '');
             $s = keyReplace($s, dataFixup($tmp, xl('Allergies')));
@@ -357,7 +360,7 @@ function doSubs($s)
 $ptrow = sqlQuery("SELECT pd.*, " .
   "ur.fname AS ur_fname, ur.mname AS ur_mname, ur.lname AS ur_lname, " .
   "ur.state_license_number AS ur_license, " .
-  "ur.npi as ur_npi " .
+  "ur.npi AS ur_npi, ur.specialty AS ur_specialty " .
   "FROM patient_data AS pd " .
   "LEFT JOIN users AS ur ON ur.id = pd.ref_providerID " .
   "WHERE pd.pid = ?", array($pid));
@@ -365,7 +368,7 @@ $ptrow = sqlQuery("SELECT pd.*, " .
 $mdrow = sqlQuery("SELECT pd.*, " .
   "ur.fname AS ur_fname, ur.mname AS ur_mname, ur.lname AS ur_lname, " .
   "ur.state_license_number AS ur_license, " .
-  "ur.npi AS ur_npi " .
+  "ur.npi AS ur_npi, ur.specialty AS ur_specialty " .
   "FROM patient_data AS pd " .
   "LEFT JOIN users AS ur ON ur.id = pd.providerID " .
   "WHERE pd.pid = ?", array($pid));
