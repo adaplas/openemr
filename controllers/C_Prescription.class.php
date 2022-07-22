@@ -354,7 +354,7 @@ class C_Prescription extends Controller
 	}
 	$pdf->ezColumnsStart(array('num' => 3, 'gap' => 2));
 
-        $pdf->ezImage($GLOBALS['oer_config']['prescriptions']['logo'], '', '50', '', 'left', '');
+        $pdf->ezImage($GLOBALS['oer_config']['prescriptions']['logo'], '', '80', '', 'left', '');
         $pdf->ezNewPage();
 
 	$pdf->ezText('<b>' . $p->provider->get_name_display() . xl(', MD') . '</b>', 16);
