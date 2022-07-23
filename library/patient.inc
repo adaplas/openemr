@@ -23,6 +23,7 @@ use OpenEMR\Services\SocialHistoryService;
 
 require_once(dirname(__FILE__) . "/dupscore.inc.php");
 
+global $facilityService;
 $facilityService = new FacilityService();
 
 // These are for sports team use:
@@ -782,8 +783,11 @@ function getPatientName($pid)
  * @var $pid int The Patient ID
  * @returns string The Full Name
  */
-function getPatientFullNameAsString(int $pid): string
+function getPatientFullNameAsString($pid): string
 {
+    if (empty($pid)) {
+        return '';
+    }
     $ptData = getPatientPID(["pid" => $pid]);
     $pt = $ptData[0];
 
@@ -1154,7 +1158,12 @@ function newEmployerData(
 //
 function updateEmployerData($pid, $new, $create = false)
 {
-    $colnames = array('name','street','city','state','postal_code','country');
+    // used to hard code colnames array('name','street','city','state','postal_code','country');
+    // but now adapted for layout based
+    $colnames = array();
+    foreach ($new as $key => $value) {
+        $colnames[] = $key;
+    }
 
     if ($create) {
         $set = "pid = '" . add_escape_custom($pid) . "', date = NOW()";
