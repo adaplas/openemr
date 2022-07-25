@@ -354,7 +354,7 @@ class C_Prescription extends Controller
 	}
 	$pdf->ezColumnsStart(array('num' => 3, 'gap' => 2));
 
-        $pdf->ezImage($GLOBALS['oer_config']['prescriptions']['logo'], '', '80', '', 'left', '');
+        $pdf->ezImage($GLOBALS['oer_config']['prescriptions']['logo'], '0', '80', '0', 'left', '');
         $pdf->ezNewPage();
 
 	$pdf->ezText('<b>' . $p->provider->get_name_display() . xl(', MD') . '</b>', 16);
@@ -611,7 +611,7 @@ class C_Prescription extends Controller
             $sigfile = str_replace('{userid}', $_SESSION["authUser"], $this->pconfig['signature']);
             if (file_exists($sigfile)) {
                 // $pdf->ezImage($sigfile, "", "", "none", "left");
-                $pdf->ezImage($sigfile, "", '60', "", "none", "center");
+                $pdf->ezImage($sigfile, '0', '60', '0', "none", "center");
 	        $pdf->ezText('<b>' . "________________________________\n" .
 	        	xl($p->provider->get_name_display()) . ', MD' . '</b>', 12);
 
@@ -640,7 +640,7 @@ class C_Prescription extends Controller
 		if (file_exists($sigfile)) {
 
 			// $pdf->ezImage($sigfile, "", "", "none", "left");
-			$pdf->ezImage($sigfile,'', '60', '', 'left', '');
+			$pdf->ezImage($sigfile,'0', '60', '0', 'left', '');
 		}
 	} else {
 		$pdf->ezText("\n\n", 12);
