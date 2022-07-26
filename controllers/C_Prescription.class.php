@@ -22,6 +22,9 @@ use OpenEMR\Common\Http\oeHttp;
 use OpenEMR\Rx\RxList;
 use PHPMailer\PHPMailer\PHPMailer;
 
+$total_page;
+$current_page;
+
 class C_Prescription extends Controller
 {
     var $template_mod;
@@ -339,6 +342,8 @@ class C_Prescription extends Controller
 
     function multiprint_header(&$pdf, $p)
     {
+    	global $total_page, $current_page;
+    	
         $this->providerid = $p->provider->id;
 	$cont = amcCollect('e_prescribe_cont_subst_amc', $p->get_patient_id(), 'prescriptions', $p->get_id());
         //print header
@@ -367,8 +372,13 @@ class C_Prescription extends Controller
         $my_y = $pdf->y;
   //      $pdf->ezNewPage();
         $pdf->ezColumnsStop();
-
+        
+        $pdf->ezColumnsStart(array('num' => 2));
 	$pdf->ezText('<b>' . xl('Date') . ": " . date('F j, Y') . '</b>', 12);
+	$pdf->ezNewPage();
+	$pdf->ezText('<b>' . "Rx " . $current_page . " of " . $total_page . '</b>', 12);
+	$pdf->ezColumnsStop();
+	
 //        $pdf->ezText('<b>' . $p->provider->get_name_display() . xl(', MD') . '</b>', 12);
     // A client had a bad experience with a patient misusing a DEA number, so
     // now the doctors write those in on printed prescriptions and only when
@@ -863,6 +873,8 @@ class C_Prescription extends Controller
 
     function multiprint_action($id = "")
     {
+    	global $total_page, $current_page;
+    	
         $_POST['process'] = "true";
         if (empty($id)) {
             $this->function_argument_error();
@@ -893,7 +905,8 @@ class C_Prescription extends Controller
 	//print prescriptions body
 	$this->_state = false; // Added by Rod - see Controller.class.php
 	$ids = preg_split('/::/', substr($id, 1, strlen($id) - 2), -1, PREG_SPLIT_NO_EMPTY);
-
+	$total_page = intval((count($ids) + 3)/4);
+	$current_page = 1;
 	$loop = 0;
 	$pass = 1;
 	do {
@@ -912,6 +925,7 @@ class C_Prescription extends Controller
 			if (++$on_this_page > 4 || $p->provider->id != $this->providerid) {
 				$this->multiprint_footer($pdf, $p);
 				$pdf->ezNewPage();
+				$current_page++;
 				$this->multiprint_header($pdf, $p);
 				// $print_header = false;
 				$on_this_page = 1;
