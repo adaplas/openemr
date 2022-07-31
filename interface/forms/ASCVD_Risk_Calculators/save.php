@@ -6,6 +6,9 @@ require_once("$srcdir/forms.inc");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 
+// David C. GoffJr, Donald M. Lloyd-Jones, et al.2013 ACC/AHA Guideline on the Assessment of Cardiovascular Risk:
+// A Report of the American College of Cardiology/American Heart Association Task Force on Practice Guidelines.
+// Circulation. 2014 | Volume 129, Issue 25_suppl_2: S1–S45.
 function accaha_10y($field_names)
 {
 	$idx = 0;
@@ -89,6 +92,7 @@ function accaha_10y($field_names)
 	return ($risk_score < 1) ? 1.00 : $risk_score;
 }
 
+// D'Agostino RB Sr, Vasan RS, Pencina MJ, et al. General cardiovascular risk profile for use in primary care: the Framingham Heart Study. Circulation 2008; 117:743.
 function frs_10y($field_names)
 {
 	$idx = 0;
@@ -149,6 +153,7 @@ function frs_10y($field_names)
 	return ($risk_score < 1) ? 1.00 : $risk_score;
 }	
 
+// D'Agostino RB Sr, Vasan RS, Pencina MJ, et al. General cardiovascular risk profile for use in primary care: the Framingham Heart Study. Circulation 2008; 117:743.
 function frs_10y_simple($field_names)
 {
 	$idx = 0;
@@ -204,6 +209,10 @@ function frs_10y_simple($field_names)
 	return ($risk_score < 1) ? 1.00 : $risk_score;
 }	
 
+// Robyn L. McClelland, PhD; Neal W. Jorgensen, MS; et al. 10-Year Coronary Heart Disease Risk Prediction Using
+// Coronary Artery Calcium and Traditional Risk Factors: Derivation in the MESA (Multi-Ethnic Study of Atherosclerosis)
+// With Validation in the HNR (Heinz Nixdorf Recall) Study and the DHS (Dallas Heart Study).
+// J Am Coll Cardiol. 2015 Oct 13;66(15):1643-53.
 function mesa_10y($field_names)
 {
 	$race = $field_names["race"];
@@ -280,6 +289,10 @@ function mesa_10y($field_names)
 	return $risk_score;							 			
 }
 
+// Robyn L. McClelland, PhD; Neal W. Jorgensen, MS; et al. 10-Year Coronary Heart Disease Risk Prediction Using
+// Coronary Artery Calcium and Traditional Risk Factors: Derivation in the MESA (Multi-Ethnic Study of Atherosclerosis)
+// With Validation in the HNR (Heinz Nixdorf Recall) Study and the DHS (Dallas Heart Study).
+// J Am Coll Cardiol. 2015 Oct 13;66(15):1643-53.
 function mesa_10y_cac($field_names)
 {
 	$race = $field_names["race"];
