@@ -27,21 +27,21 @@ function ASCVD_Risk_Calculators_report( $pid, $encounter, $cols, $id) {
 		"Cac" => "Coronary Artery Calcification (Agatston)",
 		"10y Accaha" => "ACC/AHA 2013 ASCVD risk score (%)",
 		"10y Frs" => "Framingham 2008 ASCVD risk score (with lab measurement) (%)",
-		"10y Frs Simple" => "Framingham 2008 ASCVD risk score (no lab measurement) (%)", 
+		"10y Frs Simple" => "Framingham 2008 ASCVD risk score (no lab measurement) (%)",
 		"10y Mesa" => "MESA 2015 CHD risk score (%)",
 		"10y Mesa Cac" => "MESA 2015 CHD risk score with CAC (%)",
 	];
-	
-	
+
+
 	$count = 0;
 	$data = formFetch("form_ASCVD_Risk_Calculators", $id);
 	if ($data) {
 		print "<hr><table><tr>";
 		foreach($data as $key => $value) {
-			if ($key == "id" || $key == "pid" || $key == "user" || $key == "groupname" || 
+			if ($key == "id" || $key == "pid" || $key == "user" || $key == "groupname" ||
 				$key == "authorized" || $key == "activity" || $key == "date" || $value == "" || $value == "0000-00-00 00:00:00") {
 				continue;
-			}	
+			}
 			if ($value == "on") {
 				$value = "yes";
 			}
@@ -54,7 +54,7 @@ function ASCVD_Risk_Calculators_report( $pid, $encounter, $cols, $id) {
 				print "</tr><tr>\n";
 				print "<td><br><hr><span class=bold>Risk Scores (10 year risk of CVD)</span><br><hr></td>";
 				print "</tr><tr>\n";
-				
+
 			}
 			print "<td><span class=bold>".text(($replace_array[$mykey]) ? $replace_array[$mykey] : $mykey).": </span><span class=text>".text($myval)."</span></td>";
 			$count++;
@@ -62,7 +62,7 @@ function ASCVD_Risk_Calculators_report( $pid, $encounter, $cols, $id) {
 				$count = 0;
 				print "</tr><tr>\n";
 			}
-		}	
+		}
 	}
 	print "</tr></table><hr>";
 }

@@ -23,31 +23,31 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 function accaha_10y($field_names)
 {
 	$idx = 0;
-	
+
 	$age = $field_names["age"];
 	if ($age == NULL || $age < 20 || $age > 79)
 		return "Age=20-79";
-	
+
 	$sex = $field_names["sex"];
 	if (!$sex)
 		return "Missing Sex";
-		
+
 	$tot_chol = $field_names["tot_chol"];
 	if ($tot_chol == NULL || $tot_chol < 130 || $tot_chol > 320)
 		return "Total Cholesterol = 130-120 mg/dL";
-		
+
 	$hdl = $field_names["hdl"];
 	if ($hdl == NULL || $hdl < 20 || $hdl > 100)
-		return "HDL = 20-100 mg/dL";	 
-		
+		return "HDL = 20-100 mg/dL";
+
 	$sbp = $field_names["sbp"];
 	if ($sbp == NULL || $sbp < 90 || $sbp > 200)
 		return "Systolic BP = 90-200 mmHg";
-		
+
 	$smoking = $field_names["smoking"];
 	if (!$smoking)
 		return "Missing Smoking data";
-		
+
 	$diabetes = $field_names["diabetes"];
 	if (!$diabetes)
 		return "Missing Diabetes data";
@@ -61,12 +61,12 @@ function accaha_10y($field_names)
 		 0.000, 7.574, -1.665, 0.661, -29.18, 0.9665), // white-female
 		array(17.114, 0.000, 0.940, 0.000, -18.920, 4.475, 29.291, -6.432, 27.820,
 		 -6.087, 0.691, 0.000, 0.874, 86.61, 0.9533),  // aa-female
-		array(12.344, 0.000, 11.853, -2.664, -7.990, 1.769, 1.797, 0.000, 1.764, 
+		array(12.344, 0.000, 11.853, -2.664, -7.990, 1.769, 1.797, 0.000, 1.764,
 		0.000, 7.837, -1.795, 0.658, 61.18, 0.9144),    // white-male
 		array(2.469, 0.000, 0.302, 0.000, -0.307, 0.000, 1.916, 0.000, 1.809, 0.000,
 		 0.549, 0.000, 0.645, 19.54, 0.8954)         // aa-male
 	);
-		
+
 	$race = $field_names["race"];
 	if ($race == "african american") {
 		if ($sex == "female")
@@ -79,10 +79,10 @@ function accaha_10y($field_names)
 		else
 			$idx = 2;
 	}
-	
+
 	$sbp_treated = ($bp_med == "yes") ? $sbp : 1;
 	$sbp_untreated = ($bp_med == "no") ? $sbp : 1;
-	
+
 	$sum = log($age) * $ascvd_pooled_coef[$idx][0];
 	$sum += pow(log($age), 2) * $ascvd_pooled_coef[$idx][1];
 	$sum += log($tot_chol) * $ascvd_pooled_coef[$idx][2];
@@ -98,7 +98,7 @@ function accaha_10y($field_names)
 	$sum += (($diabetes == "yes") ? 1 : 0) * $ascvd_pooled_coef[$idx][12];
 
 	$exponent = exp($sum - $ascvd_pooled_coef[$idx][13]);
-	
+
 	$risk_score = round((1 - pow($ascvd_pooled_coef[$idx][14], $exponent)) * 100, 2);
 	return ($risk_score < 1) ? 1.00 : $risk_score;
 }
@@ -107,46 +107,46 @@ function accaha_10y($field_names)
 function frs_10y($field_names)
 {
 	$idx = 0;
-	
+
 	$age = $field_names["age"];
 	if ($age == NULL || $age < 30 || $age > 74)
 		return "Age = 30-74";
-	
+
 	$sex = $field_names["sex"];
 	if (!$sex)
 		return "Missing Sex";
-		
+
 	$tot_chol = $field_names["tot_chol"];
 	if ($tot_chol == NULL)
 		return "Missing Total Cholesterol";
-		
+
 	$hdl = $field_names["hdl"];
 	if ($hdl == NULL)
-		return "Missing HDL";	 
-		
+		return "Missing HDL";
+
 	$sbp = $field_names["sbp"];
 	if ($sbp == NULL)
 		return "Missing Systolic BP";
-		
+
 	$smoking = $field_names["smoking"];
 	if (!$smoking)
 		return "Missing Smoking data";
-		
+
 	$diabetes = $field_names["diabetes"];
 	if (!$diabetes)
 		return "Missing Diabetes data";
-		
+
 	$bp_med = $field_names["bp_med"];
 	if (!$bp_med)
-		return "Missing BP medications";		
-		
+		return "Missing BP medications";
+
 	$frs_coef = array(
 		array(3.06117, 1.12370, -0.93263, 1.93303, 1.99881, 0.65451, 0.57367, 23.9802,
 		 0.88936), //male
 		array(2.32888, 1.20904, -0.70833, 2.76157, 2.82263, 0.52873, 0.69154, 26.1931,
 		 0.95012)  //female
 	);
-	
+
 	$idx = ($sex == "male") ? 0 : 1;
 	$sbp_treated = ($bp_med == "yes") ? $sbp : 1;
 	$sbp_untreated = ($bp_med == "no") ? $sbp : 1;
@@ -158,21 +158,21 @@ function frs_10y($field_names)
 	$sum += log($sbp_treated) * $frs_coef[$idx][4];
 	$sum += (($smoking == "yes") ? 1 : 0) * $frs_coef[$idx][5];
 	$sum += (($diabetes == "yes") ? 1 : 0) * $frs_coef[$idx][6];
-	
+
 	$exponent = exp($sum - $frs_coef[$idx][7]);
 	$risk_score = round((1 - pow($frs_coef[$idx][8], $exponent)) * 100, 2);
 	return ($risk_score < 1) ? 1.00 : $risk_score;
-}	
+}
 
 // D'Agostino RB Sr, Vasan RS, Pencina MJ, et al. General cardiovascular risk profile for use in primary care: the Framingham Heart Study. Circulation 2008; 117:743.
 function frs_10y_simple($field_names)
 {
 	$idx = 0;
-	
+
 	$age = $field_names["age"];
 	if ($age == NULL || $age < 30 || $age > 74)
 		return "Age = 30-74";
-	
+
 	$sex = $field_names["sex"];
 	if (!$sex)
 		return "Missing Sex";
@@ -180,30 +180,30 @@ function frs_10y_simple($field_names)
 	$bmi = $field_names["bmi"];
 	if ($bmi == NULL)
 		return "Missing BMI";
-				
+
 	$sbp = $field_names["sbp"];
 	if ($sbp == NULL)
 		return "Missing Systolic BP";
-		
+
 	$smoking = $field_names["smoking"];
 	if (!$smoking)
 		return "Missing Smoking data";
-		
+
 	$diabetes = $field_names["diabetes"];
 	if (!$diabetes)
 		return "Missing Diabetes data";
 
 	$bp_med = $field_names["bp_med"];
 	if (!$bp_med)
-		return "Missing BP medications";		
-	
+		return "Missing BP medications";
+
 	$frs_coef_simple = array(
 		array(3.11296, 0.79277, 1.85508, 1.92672, 0.70953, 0.53160, 23.9388,
 		 0.88431), //male
 		array(2.72107, 0.51125, 2.81291, 2.88267, 0.61868, 0.77763, 26.0145,
 		 0.94833)  //female
 	);
-	
+
 	$idx = ($sex == "male") ? 0 : 1;
 	$sbp_treated = ($bp_med == "yes") ? $sbp : 1;
 	$sbp_untreated = ($bp_med == "no") ? $sbp : 1;
@@ -214,11 +214,11 @@ function frs_10y_simple($field_names)
 	$sum += log($sbp_treated) * $frs_coef_simple[$idx][3];
 	$sum += (($smoking == "yes") ? 1 : 0) * $frs_coef_simple[$idx][4];
 	$sum += (($diabetes == "yes") ? 1 : 0) * $frs_coef_simple[$idx][5];
-	
+
 	$exponent = exp($sum - $frs_coef_simple[$idx][6]);
 	$risk_score = round((1 - pow($frs_coef_simple[$idx][7], $exponent)) * 100, 2);
 	return ($risk_score < 1) ? 1.00 : $risk_score;
-}	
+}
 
 // Robyn L. McClelland, PhD; Neal W. Jorgensen, MS; et al. 10-Year Coronary Heart Disease Risk Prediction Using
 // Coronary Artery Calcium and Traditional Risk Factors: Derivation in the MESA (Multi-Ethnic Study of Atherosclerosis)
@@ -229,47 +229,47 @@ function mesa_10y($field_names)
 	$race = $field_names["race"];
 	if (!($race == "african american" || $race == "chinese" || $race == "hispanic"))
 		return "Only for African American, Chinese or Hispanic Race/Ethnicity";
-		
+
 	$age = $field_names["age"];
 	if ($age == NULL || $age < 1 || $age > 120)
 		return "Invalid Age";
-	
+
 	$sex = $field_names["sex"];
 	if (!$sex)
 		return "Missing Sex";
-		
+
 	$tot_chol = $field_names["tot_chol"];
 	if ($tot_chol == NULL || $tot_chol < 1 || $tot_chol > 999)
 		return "Invalid Total Cholesterol";
-		
+
 	$hdl = $field_names["hdl"];
 	if (!$hdl)
 		return "Invalid HDL";
-	
+
 	$diabetes = $field_names["diabetes"];
 	if (!$diabetes)
 		return "Missing Diabetes";
-		
+
 	$smoking = $field_names["smoking"];
 	if (!$smoking)
 		return "Missing Smoking";
-		
+
 	$lipid_med = $field_names["lipid_med"];
 	if (!$lipid_med)
 		return "Missing Lipid Medications";
-		
+
 	$bp_med = $field_names["bp_med"];
 	if (!$bp_med)
 		return "Missing BP Medications";
-		
+
 	$fh_heartattack = $field_names["fh_heartattack"];
 	if (!$fh_heartattack)
 		return "Missing Family History of heart attacks";
-		
+
 	$sbp = $field_names["sbp"];
 	if ($sbp == NULL)
-		return "Missing BP";			
-										
+		return "Missing BP";
+
 	$mesa_coef = array(0.0455, 0.7496, -0.5055, -0.2111, -0.19, 0.5168, 0.4732, 0.0053,
 	 -0.014, 0.2473, 0.0085, 0.3381, 0.4522, 0.99963);
 
@@ -277,27 +277,27 @@ function mesa_10y($field_names)
 	$race_aa = ($race == "african american") ? 1 : 0;
 	$race_hispanic = ($race == "hispanic") ? 1 : 0;
 	$sex_male = ($sex == "male") ? 1 : 0;
-		
+
 	$sum = $age * $mesa_coef[0];
 	$sum += $sex_male * $mesa_coef[1];
 	$sum += $race_chinese * $mesa_coef[2];
 	$sum += $race_aa * $mesa_coef[3];
 	$sum += $race_hispanic * $mesa_coef[4];
 	$sum += (($diabetes == "yes") ? 1 : 0) * $mesa_coef[5];
-	$sum += (($smoking == "yes") ? 1 : 0) * $mesa_coef[6];	
+	$sum += (($smoking == "yes") ? 1 : 0) * $mesa_coef[6];
 	$sum += $tot_chol * $mesa_coef[7];
 	$sum += $hdl * $mesa_coef[8];
 	$sum += (($lipid_med == "yes") ? 1 : 0) * $mesa_coef[9];
-	$sum += $sbp * $mesa_coef[10];	
-	$sum += (($bp_med == "yes") ? 1 : 0) * $mesa_coef[11];	
+	$sum += $sbp * $mesa_coef[10];
+	$sum += (($bp_med == "yes") ? 1 : 0) * $mesa_coef[11];
 	$sum += (($fh_heartattack == "yes") ? 1 : 0) * $mesa_coef[12];
-	
+
 	$exponent = exp($sum);
 	$risk_score = round((1 - pow($mesa_coef[13], $exponent)) * 100, 2);
 
 	$risk_score = ($risk_score < 1) ? 1.00 : $risk_score;
 	$risk_score = ($risk_score > 30) ? 30.00 : $risk_score;
-	return $risk_score;							 			
+	return $risk_score;
 }
 
 // Robyn L. McClelland, PhD; Neal W. Jorgensen, MS; et al. 10-Year Coronary Heart Disease Risk Prediction Using
@@ -309,51 +309,51 @@ function mesa_10y_cac($field_names)
 	$race = $field_names["race"];
 	if (!($race == "african american" || $race == "chinese" || $race == "hispanic"))
 		return "Only for African American, Chinese or Hispanic Race/Ethnicity";
-		
+
 	$age = $field_names["age"];
 	if ($age == NULL || $age < 1 || $age > 120)
 		return "Invalid Age";
-	
+
 	$sex = $field_names["sex"];
 	if (!$sex)
 		return "Missing Sex";
-		
+
 	$tot_chol = $field_names["tot_chol"];
 	if ($tot_chol == NULL || $tot_chol < 1 || $tot_chol > 999)
 		return "Invalid Total Cholesterol";
-		
+
 	$hdl = $field_names["hdl"];
 	if ($hdl == NULL)
 		return "Invalid HDL";
-	
+
 	$diabetes = $field_names["diabetes"];
 	if (!$diabetes)
 		return "Missing Diabetes";
-		
+
 	$smoking = $field_names["smoking"];
 	if (!$smoking)
 		return "Missing Smoking";
-		
+
 	$lipid_med = $field_names["lipid_med"];
 	if (!$lipid_med)
 		return "Missing Lipid Medications";
-		
+
 	$bp_med = $field_names["bp_med"];
 	if (!$bp_med)
 		return "Missing BP Medications";
-		
+
 	$fh_heartattack = $field_names["fh_heartattack"];
 	if (!$fh_heartattack)
 		return "Missing Family History of heart attacks";
-		
+
 	$sbp = $field_names["sbp"];
 	if (!$sbp)
-		return "Missing BP";	
-		
+		return "Missing BP";
+
 	$cac = $field_names["cac"];
 	if ($cac == NULL)
 		return "Missing Coronary Artery Calcification";
-																	
+
 	$mesa_coef_cac = array(0.0172, 0.4079, -0.3475, 0.0353, -0.0222, 0.3892, 0.3717, 0.0043,
 	 -0.0114, 0.1206, 0.0066, 0.2278, 0.3239, 0.2743, 0.99833);
 
@@ -361,28 +361,28 @@ function mesa_10y_cac($field_names)
 	$race_aa = ($race == "african american") ? 1 : 0;
 	$race_hispanic = ($race == "hispanic") ? 1 : 0;
 	$sex_male = ($sex == "male") ? 1 : 0;
-		
+
 	$sum = $age * $mesa_coef_cac[0];
 	$sum += $sex_male * $mesa_coef_cac[1];
 	$sum += $race_chinese * $mesa_coef_cac[2];
 	$sum += $race_aa * $mesa_coef_cac[3];
 	$sum += $race_hispanic * $mesa_coef_cac[4];
 	$sum += (($diabetes == "yes") ? 1 : 0) * $mesa_coef_cac[5];
-	$sum += (($smoking == "yes") ? 1 : 0) * $mesa_coef_cac[6];	
+	$sum += (($smoking == "yes") ? 1 : 0) * $mesa_coef_cac[6];
 	$sum += $tot_chol * $mesa_coef_cac[7];
 	$sum += $hdl * $mesa_coef_cac[8];
 	$sum += (($lipid_med == "yes") ? 1 : 0) * $mesa_coef_cac[9];
-	$sum += $sbp * $mesa_coef_cac[10];	
-	$sum += (($bp_med == "yes") ? 1 : 0) * $mesa_coef_cac[11];	
+	$sum += $sbp * $mesa_coef_cac[10];
+	$sum += (($bp_med == "yes") ? 1 : 0) * $mesa_coef_cac[11];
 	$sum += (($fh_heartattack == "yes") ? 1 : 0) * $mesa_coef_cac[12];
 	$sum += log1p($cac) * $mesa_coef_cac[13];
-	
+
 	$exponent = exp($sum);
 	$risk_score = round((1 - pow($mesa_coef_cac[14], $exponent)) * 100, 2);
 
 	$risk_score = ($risk_score < 1) ? 1.00 : $risk_score;
 	$risk_score = ($risk_score > 30) ? 30.00 : $risk_score;
-	return $risk_score;							 			
+	return $risk_score;
 }
 
 if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
@@ -460,7 +460,7 @@ if ($encounter == "")
 $encounter = date("Ymd");
 if ($_GET["mode"] == "new"){
 reset($field_names);
-$newid = formSubmit("form_ASCVD_Risk_Calculators", $field_names, 
+$newid = formSubmit("form_ASCVD_Risk_Calculators", $field_names,
 	isset($_GET["id"]) ? $_GET["id"] : '', $userauthorized);
 addForm($encounter, "ASCVD Risk Calculator", $newid, "ASCVD_Risk_Calculators", $pid, $userauthorized);
 }elseif ($_GET["mode"] == "update") {
