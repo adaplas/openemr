@@ -41,7 +41,7 @@ function ASCVD_Risk_Calculators_report( $pid, $encounter, $cols, $id) {
 				$cols = 1;
 				$count = 0;
 				print "</tr><tr>\n";
-				print "<td><br><hr><span class=bold> Risk Scores</span><br><hr></td>";
+				print "<td><br><hr><span class=bold>Risk Scores (10 year risk of CVD)</span><br><hr></td>";
 				print "</tr><tr>\n";
 				
 			}
