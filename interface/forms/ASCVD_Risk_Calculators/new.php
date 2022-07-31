@@ -47,7 +47,7 @@ h3 {
 
 <table>
 
-<tr><td>select name="race"  size="5">
+<tr><td><select name="race"  size="5">
 <option value="white"> <?php echo xlt("white") ?> </option>
 <option value="african american"> <?php echo xlt("african american") ?> </option>
 <option value="chinese"> <?php echo xlt("chinese") ?> </option>
