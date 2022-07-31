@@ -85,8 +85,8 @@ function accaha_10y($field_names)
 
 	$exponent = exp($sum - $ascvd_pooled_coef[$idx][13]);
 	
-	$risk_score = round((1 - pow($ascvd_pooled_coef[$idx][14], $exponent)) * 100, 1);
-	return ($risk_score < 1) ? 1.0 : $risk_score;
+	$risk_score = round((1 - pow($ascvd_pooled_coef[$idx][14], $exponent)) * 100, 2);
+	return ($risk_score < 1) ? 1.00 : $risk_score;
 }
 
 function frs_10y($field_names)
