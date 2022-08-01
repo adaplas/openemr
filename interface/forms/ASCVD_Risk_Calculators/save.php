@@ -283,7 +283,7 @@ function frs_10y_simple($field_names)
 
 // Sytkowski PA, Kannel WB, D'agostino RB. Changes in risk factors and the decline in mortality
 // from cardiovascular disease. The Framingham Heart Study. N Engl J Med. 1990;322(23):1635-41.  
-function frs_10y_simple($field_names)
+function frs_10y_hard($field_names)
 {
 	return 0;
 }

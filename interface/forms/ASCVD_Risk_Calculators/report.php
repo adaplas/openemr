@@ -28,6 +28,7 @@ function ASCVD_Risk_Calculators_report( $pid, $encounter, $cols, $id) {
 		"10y Accaha" => "ACC/AHA 2013 ASCVD risk score (%)",
 		"10y Frs" => "Framingham 2008 ASCVD risk score (with lab measurement) (%)",
 		"10y Frs Simple" => "Framingham 2008 ASCVD risk score (no lab measurement) (%)",
+		"10y Frs Hard" => "Framingham 1998 Hard Coronary risk score (%)",
 		"10y Mesa" => "MESA 2015 CHD risk score (%)",
 		"10y Mesa Cac" => "MESA 2015 CHD risk score with CAC (%)",
 	];
