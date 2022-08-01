@@ -174,6 +174,8 @@ h3 {
  <tr><td><input type="hidden" name="10y_frs" value="<?php $result = chkdata_Txt($obj,"10y_frs"); echo $result;?>"></td></tr>
 
  <tr><td><input type="hidden" name="10y_frs_simple" value="<?php $result = chkdata_Txt($obj,"10y_frs_simple"); echo $result;?>"></td></tr>
+ 
+ <tr><td><input type="hidden" name="10y_frs_hard" value="<?php $result = chkdata_Txt($obj,"10y_frs_hard"); echo $result;?>"></td></tr>
 
  <tr><td><input type="hidden" name="10y_mesa" value="<?php $result = chkdata_Txt($obj,"10y_mesa"); echo $result;?>"></td></tr>
 

@@ -154,11 +154,19 @@ formHeader("Form: ASCVD Risk Calculator");
 
 </table>
 <br />
-<h3> <?php echo xlt("Framingham 200 Risk Score (no labs)") ?> </h3>
+<h3> <?php echo xlt("Framingham 2008 Risk Score (no labs)") ?> </h3>
 
 <table>
 
 <tr><td> <?php echo xlt("10y frs simple") ?> </td> <td><input type="text" name="10y_frs_simple"  /></td></tr>
+
+</table>
+<br />
+<h3> <?php echo xlt("Framingham 1998 Hard Coronary Risk Score") ?> </h3>
+
+<table>
+
+<tr><td> <?php echo xlt("10y frs hard") ?> </td> <td><input type="text" name="10y_frs_simple"  /></td></tr>
 
 </table>
 <br />

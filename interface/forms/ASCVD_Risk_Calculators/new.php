@@ -152,6 +152,7 @@ h3 {
 <tr><td><input type="hidden" name="10y_accaha"  /></td></tr>
 <tr><td><input type="hidden" name="10y_frs"  /></td></tr>
 <tr><td><input type="hidden" name="10y_frs_simple"  /></td></tr>
+<tr><td><input type="hidden" name="10y_frs_hard" /></td></tr>
 <tr><td><input type="hidden" name="10y_mesa"  /></td></tr>
 <tr><td><input type="hidden" name="10y_mesa_cac"  /></td></tr>
 

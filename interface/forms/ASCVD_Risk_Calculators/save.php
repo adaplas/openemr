@@ -281,6 +281,13 @@ function frs_10y_simple($field_names)
 	return ($risk_score < 1) ? 1.00 : $risk_score;
 }
 
+// Sytkowski PA, Kannel WB, D'agostino RB. Changes in risk factors and the decline in mortality
+// from cardiovascular disease. The Framingham Heart Study. N Engl J Med. 1990;322(23):1635-41.  
+function frs_10y_simple($field_names)
+{
+	return 0;
+}
+
 // Robyn L. McClelland, PhD; Neal W. Jorgensen, MS; et al. 10-Year Coronary Heart Disease Risk Prediction Using
 // Coronary Artery Calcium and Traditional Risk Factors: Derivation in the MESA (Multi-Ethnic Study of Atherosclerosis)
 // With Validation in the HNR (Heinz Nixdorf Recall) Study and the DHS (Dallas Heart Study).
@@ -467,6 +474,7 @@ https://exerror.com/warning-undefined-array-key/
 $field_names["10y_accaha"] = accaha_10y($field_names);
 $field_names["10y_frs"] = frs_10y($field_names);
 $field_names["10y_frs_simple"] = frs_10y_simple($field_names);
+$field_names["10y_frs_hard"] = frs_10y_hard($field_names);
 $field_names["10y_mesa"] = mesa_10y($field_names);
 $field_names["10y_mesa_cac"] = mesa_10y_cac($field_names);
 
@@ -484,7 +492,7 @@ $newid = formSubmit("form_ASCVD_Risk_Calculators", $field_names,
 	isset($_GET["id"]) ? $_GET["id"] : '', $userauthorized);
 addForm($encounter, "ASCVD Risk Calculator", $newid, "ASCVD_Risk_Calculators", $pid, $userauthorized);
 }elseif ($_GET["mode"] == "update") {
-sqlStatement("update form_ASCVD_Risk_Calculators set pid = '" . add_escape_custom($_SESSION["pid"]) . "', groupname='" . add_escape_custom($_SESSION["authProvider"]) . "', user='" . add_escape_custom($_SESSION["authUser"]) . "', authorized='" . add_escape_custom($userauthorized) . "', activity=1, date = NOW(), age='".$field_names["age"]."',sex='".$field_names["sex"]."',race='".$field_names["race"]."',sbp='".$field_names["sbp"]."',bmi='".$field_names["bmi"]."',hdl='".$field_names["hdl"]."',tot_chol='".$field_names["tot_chol"]."',bp_med='".$field_names["bp_med"]."',smoking='".$field_names["smoking"]."',diabetes='".$field_names["diabetes"]."',lipid_med='".$field_names["lipid_med"]."',fh_heartattack='".$field_names["fh_heartattack"]."',cac='".$field_names["cac"]."',10y_accaha='".$field_names["10y_accaha"]."',10y_frs='".$field_names["10y_frs"]."',10y_frs_simple='".$field_names["10y_frs_simple"]."',10y_mesa='".$field_names["10y_mesa"]."',10y_mesa_cac='".$field_names["10y_mesa_cac"]."' where id='" . $_GET["id"] . "'");
+sqlStatement("update form_ASCVD_Risk_Calculators set pid = '" . add_escape_custom($_SESSION["pid"]) . "', groupname='" . add_escape_custom($_SESSION["authProvider"]) . "', user='" . add_escape_custom($_SESSION["authUser"]) . "', authorized='" . add_escape_custom($userauthorized) . "', activity=1, date = NOW(), age='".$field_names["age"]."',sex='".$field_names["sex"]."',race='".$field_names["race"]."',sbp='".$field_names["sbp"]."',bmi='".$field_names["bmi"]."',hdl='".$field_names["hdl"]."',tot_chol='".$field_names["tot_chol"]."',bp_med='".$field_names["bp_med"]."',smoking='".$field_names["smoking"]."',diabetes='".$field_names["diabetes"]."',lipid_med='".$field_names["lipid_med"]."',fh_heartattack='".$field_names["fh_heartattack"]."',cac='".$field_names["cac"]."',10y_accaha='".$field_names["10y_accaha"]."',10y_frs='".$field_names["10y_frs"]."',10y_frs_simple='".$field_names["10y_frs_simple"]."',10y_frs_hard='".$field_names["10y_frs_hard"]."',10y_mesa='".$field_names["10y_mesa"]."',10y_mesa_cac='".$field_names["10y_mesa_cac"]."' where id='" . $_GET["id"] . "'");
 }
 
 formHeader("Redirecting....");
