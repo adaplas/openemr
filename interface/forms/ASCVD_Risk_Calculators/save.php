@@ -126,7 +126,7 @@ function accaha_10y($field_names)
 
 	$age = $field_names["age"];
 	if ($age < 20 || $age > 79)
-		return "Age=20-79";
+		return "Age = 20-79";
 
 	$tot_chol = $field_names["tot_chol"];
 	if ($tot_chol < 130 || $tot_chol > 320)
@@ -187,7 +187,6 @@ function accaha_10y($field_names)
 	$sum += (($diabetes == "yes") ? 1 : 0) * $ascvd_pooled_coef[$idx][12];
 
 	$exponent = exp($sum - $ascvd_pooled_coef[$idx][13]);
-
 	$risk_score = round((1 - pow($ascvd_pooled_coef[$idx][14], $exponent)) * 100, 2);
 	return ($risk_score < 1) ? 1.00 : $risk_score;
 }
@@ -250,7 +249,7 @@ function frs_10y_simple($field_names)
 
 	$age = $field_names["age"];
 	if ($age < 30 || $age > 74)
-		return "Age=30-74";
+		return "Age = 30-74";
 
 	$sex = $field_names["sex"];
 	$bmi = $field_names["bmi"];
@@ -299,11 +298,11 @@ function frs_10y_hard($field_names)
 
 	$age = $field_names["age"];
 	if ($age < 30 || $age > 79)
-		return "Age=30-79";
+		return "Age = 30-79";
 
 	$sbp = $field_names["sbp"];
 	if ($sbp < 30 ||$sbp > 300)
-		return "Systolic BP=30-300";
+		return "Systolic BP = 30-300";
 
 	$tot_chol = $field_names["tot_chol"];
 	if ($tot_chol < 100)
@@ -340,9 +339,8 @@ function frs_10y_hard($field_names)
 	$sum += log($age) * log($tot_chol) * $frs_coef_hard[$idx][6];
 	$sum += log($age_smoker) * (($smoking == "yes") ? 1 : 0) * $frs_coef_hard[$idx][7];
 	$sum += pow(log($age), 2) * $frs_coef_hard[$idx][8];
-	$sum -= $frs_coef_hard[$idx][9];
 
-	$exponent = exp($sum);
+	$exponent = exp($sum - $frs_coef_hard[$idx][9]);
 	$risk_score = round((1 - pow($frs_coef_hard[$idx][10], $exponent)) * 100, 2);
 
 	return $risk_score;
@@ -381,7 +379,7 @@ function mesa_10y($field_names)
 	$sbp = $field_names["sbp"];
 
 	$mesa_coef = array(0.0455, 0.7496, -0.5055, -0.2111, -0.19, 0.5168, 0.4732, 0.0053,
-	 -0.014, 0.2473, 0.0085, 0.3381, 0.4522, 0.99963);
+			   -0.014, 0.2473, 0.0085, 0.3381, 0.4522, 0.99963);
 
 	$race_chinese = ($race == "chinese") ? 1 : 0;
 	$race_aa = ($race == "african american") ? 1 : 0;
@@ -443,7 +441,7 @@ function mesa_10y_cac($field_names)
 	$cac = $field_names["cac"];
 
 	$mesa_coef_cac = array(0.0172, 0.4079, -0.3475, 0.0353, -0.0222, 0.3892, 0.3717, 0.0043,
-	 -0.0114, 0.1206, 0.0066, 0.2278, 0.3239, 0.2743, 0.99833);
+				-0.0114, 0.1206, 0.0066, 0.2278, 0.3239, 0.2743, 0.99833);
 
 	$race_chinese = ($race == "chinese") ? 1 : 0;
 	$race_aa = ($race == "african american") ? 1 : 0;
@@ -531,7 +529,7 @@ foreach($field_names as $key=>$val)
           $field_names[$key] = preg_replace('/\s*,\s*([^,]+)\./',' and $1.',$field_names[$key]); // replace last comma with 'and' and ending period
         }
 }
-https://exerror.com/warning-undefined-array-key/
+
 $field_names["10y_accaha"] = accaha_10y($field_names);
 $field_names["10y_frs"] = frs_10y($field_names);
 $field_names["10y_frs_simple"] = frs_10y_simple($field_names);
