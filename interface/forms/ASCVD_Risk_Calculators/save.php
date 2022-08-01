@@ -33,80 +33,82 @@ const PARAM_SEX            = 4096;
 
 function check_params($params, $field_names)
 {
+	$error = 0;
+
 	if ($params & PARAM_AGE && $field_names["age"] == NULL)
-		return PARAM_AGE;
+		$error |= PARAM_AGE;
 
 	if ($params & PARAM_SEX && $field_names["sex"] == NULL)
-		return PARAM_SEX;
+		$error |= PARAM_SEX;
 
 	if ($params & PARAM_RACE && $field_names["race"] == NULL)
-		return PARAM_RACE;
+		$error |= PARAM_RACE;
 
 	if ($params & PARAM_DIABETES && $field_names["diabetes"] == NULL)
-		return PARAM_DIABETES;
+		$error |= PARAM_DIABETES;
 
 	if ($params & PARAM_TOT_CHOL && $field_names["tot_chol"] == NULL)
-		return PARAM_TOT_CHOL;
+		$error |= PARAM_TOT_CHOL;
 
 	if ($params & PARAM_HDL && $field_names["hdl"] == NULL)
-		return PARAM_HDL;
+		$error |= PARAM_HDL;
 
 	if ($params & PARAM_SBP && $field_names["sbp"] == NULL)
-		return PARAM_SBP;
+		$error |= PARAM_SBP;
 
 	if ($params & PARAM_SMOKING && $field_names["smoking"] == NULL)
-		return PARAM_SMOKING;
+		$error |= PARAM_SMOKING;
 
 	if ($params & PARAM_BP_MED && $field_names["bp_med"] == NULL)
-		return PARAM_BP_MED;
+		$error |= PARAM_BP_MED;
 
 	if ($params & PARAM_LIPID_MED && $field_names["lipid_med"] == NULL)
-		return PARAM_LIPID_MED;
+		$error |= PARAM_LIPID_MED;
 
 	if ($params & PARAM_BMI && $field_names["bmi"] == NULL)
-		return PARAM_BMI;
+		$error |= PARAM_BMI;
 
 	if ($params & PARAM_CAC && $field_names["cac"] == NULL)
-		return PARAM_CAC;
+		$error |= PARAM_CAC;
 
 	if ($params & PARAM_FH_HEARTATTACK && $field_names["fh_heartattack"] == NULL)
-		return PARAM_FH_HEARTATTACK;
+		$error |= PARAM_FH_HEARTATTACK;
 
-	return 0;
+	return $error;
 }
 
 function return_error($error_code)
 {
-	switch ($error_code) {
-		case PARAM_AGE:
-			return "Missing Age";
-		case PARAM_SEX:
-			return "Missing Sex";
-		case PARAM_RACE:
-			return "Missing Race";
-		case PARAM_DIABETES:
-			return "Missing Diabetes";
-		case PARAM_TOT_CHOL:
-			return "Missing Total Cholesterol";
-		case PARAM_HDL:
-			return "Missing HDL";
-		case PARAM_SBP:
-			return "Missing Systolic BP";
-		case PARAM_SMOKING:
-			return "Missing Smoking";
-		case PARAM_BP_MED:
-			return "Missing BP Medications";
-		case PARAM_LIPID_MED:
-			return "Missing Lipid Medications/Statins";
-		case PARAM_BMI:
-			return "Missing BMI";
-		case PARAM_CAC:
-			return "Missing Coronory Artery Calcification";
-		case PARAM_FH_HEARTATTACK:
-			return "Missing Family History of Heart Attacks";
-	}
+	$error_string = 'Missing ';
 
-	return 0;
+	if ($error_code & PARAM_AGE)
+		$error_string .= "Age, ";
+	if ($error_code & PARAM_SEX)
+		$error_string .= "Sex, ";
+	if ($error_code & PARAM_RACE)
+		$error_string .= "Race, ";
+	if ($error_code & PARAM_DIABETES)
+		$error_string .= "Diabetes, ";
+	if ($error_code & PARAM_TOT_CHOL)
+		$error_string .= "Total Cholesterol, ";
+	if ($error_code & PARAM_HDL)
+		$error_string .= "HDL, ";
+	if ($error_code & PARAM_SBP)
+		$error_string .= "Systolic BP, ";
+	if ($error_code & PARAM_SMOKING)
+		$error_string .= "Smoking, ";
+	if ($error_code & PARAM_BP_MED)
+		$error_string .= "BP Medications, ";
+	if ($error_code & PARAM_LIPID_MED)
+		$error_string .= "Lipid Medications/Statins, ";
+	if ($error_code & PARAM_BMI)
+		$error_string .= "BMI, ";
+	if ($error_code & PARAM_CAC)
+		$error_string .= "Coronory Artery Calcification, ";
+	if ($error_code & PARAM_FH_HEARTATTACK)
+		$error_string .= "Family History of Heart Attacks, ";
+
+	return rtrim($error_string, ", ");
 }
 
 // David C. GoffJr, Donald M. Lloyd-Jones, et al.2013 ACC/AHA Guideline on the Assessment of Cardiovascular Risk:
