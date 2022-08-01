@@ -22,6 +22,7 @@ cac TEXT,
 10y_accaha TEXT,
 10y_frs TEXT,
 10y_frs_simple TEXT,
+10y_frs_hard TEXT,
 10y_mesa TEXT,
 10y_mesa_cac TEXT,
 
