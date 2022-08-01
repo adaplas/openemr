@@ -116,8 +116,9 @@ function return_error($error_code)
 // Circulation. 2014 | Volume 129, Issue 25_suppl_2: S1–S45.
 function accaha_10y($field_names)
 {
-	$params = PARAM_AGE | PARAM_SEX | PARAM_RACE | PARAM_TOT_CHOL | PARAM_HDL | PARAM_SBP | PARAM_SMOKING |
-		  PARAM_DIABETES | PARAM_BP_MED;
+	$idx = 0;
+	$params = PARAM_AGE | PARAM_SEX | PARAM_RACE | PARAM_TOT_CHOL | PARAM_HDL | PARAM_SBP |
+		  PARAM_SMOKING | PARAM_DIABETES | PARAM_BP_MED;
 
 	$error_code = check_params($params, $field_names);
 	if ($error_code)
@@ -129,7 +130,7 @@ function accaha_10y($field_names)
 
 	$tot_chol = $field_names["tot_chol"];
 	if ($tot_chol < 130 || $tot_chol > 320)
-		return "Total Cholesterol = 130-120 mg/dL";
+		return "Total Cholesterol = 130-320 mg/dL";
 
 	$hdl = $field_names["hdl"];
 	if ($hdl < 20 || $hdl > 100)
@@ -194,8 +195,8 @@ function accaha_10y($field_names)
 // D'Agostino RB Sr, Vasan RS, Pencina MJ, et al. General cardiovascular risk profile for use in primary care: the Framingham Heart Study. Circulation 2008; 117:743.
 function frs_10y($field_names)
 {
-	$params = PARAM_AGE | PARAM_SEX | PARAM_TOT_CHOL | PARAM_HDL | PARAM_SBP | PARAM_SMOKING |
-		  PARAM_DIABETES | PARAM_BP_MED;
+	$params = PARAM_AGE | PARAM_SEX | PARAM_TOT_CHOL | PARAM_HDL | PARAM_SBP |
+	          PARAM_SMOKING | PARAM_DIABETES | PARAM_BP_MED;
 
 	$error_code = check_params($params, $field_names);
 	if ($error_code)
@@ -249,7 +250,7 @@ function frs_10y_simple($field_names)
 
 	$age = $field_names["age"];
 	if ($age < 30 || $age > 74)
-		return "Age = 30-74";
+		return "Age=30-74";
 
 	$sex = $field_names["sex"];
 	$bmi = $field_names["bmi"];
@@ -282,10 +283,69 @@ function frs_10y_simple($field_names)
 }
 
 // Sytkowski PA, Kannel WB, D'agostino RB. Changes in risk factors and the decline in mortality
-// from cardiovascular disease. The Framingham Heart Study. N Engl J Med. 1990;322(23):1635-41.  
+// from cardiovascular disease. The Framingham Heart Study. N Engl J Med. 1990;322(23):1635-41.
 function frs_10y_hard($field_names)
 {
-	return 0;
+	$params = PARAM_AGE | PARAM_SEX | PARAM_SBP | PARAM_SMOKING |
+		  PARAM_DIABETES | PARAM_BP_MED | PARAM_TOT_CHOL | PARAM_HDL;
+
+	$error_code = check_params($params, $field_names);
+	if ($error_code)
+		return return_error($error_code);
+
+	$diabetes = $field_names["diabetes"];
+	if ($diabetes == "yes")
+		return "For non-diabetics only";
+
+	$age = $field_names["age"];
+	if ($age < 30 || $age > 79)
+		return "Age=30-79";
+
+	$sbp = $field_names["sbp"];
+	if ($sbp < 30 ||$sbp > 300)
+		return "Systolic BP=30-300";
+
+	$tot_chol = $field_names["tot_chol"];
+	if ($tot_chol < 100)
+		return "Total cholesterol too low";
+
+	$hdl = $field_names["hdl"];
+	if ($hdl < 1)
+		return "HDL too low";
+
+	$sex = $field_names["sex"];
+	$smoking = $field_names["smoking"];
+	$bp_med = $field_names["bp_med"];
+
+	$frs_coef_hard = array(
+		array(52.00961,	20.014077, -0.905964, 1.305784, 0.241549,
+		      12.096316, -4.605038, -2.84367, -2.93323, 172.300168, 0.9402),
+		array(31.764001, 22.465206, -1.187731, 2.552905, 0.420251,
+		      13.07543, -5.060998, -2.996945, 0, 146.5933061, 0.98767),
+	);
+
+	$idx = 0;
+	$age_smoker = ($age > 70) ? 70 : $age;
+	if ($sex == "female") {
+		$idx = 1;
+		$age_smoker = ($age > 78) ? 78 : $age;
+	}
+
+	$sum = log($age) * $frs_coef_hard[$idx][0];
+	$sum += log($tot_chol) * $frs_coef_hard[$idx][1];
+	$sum += log($hdl) * $frs_coef_hard[$idx][2];
+	$sum += log($sbp) * $frs_coef_hard[$idx][3];
+	$sum += (($bp_med == "yes") ? 1 : 0) * $frs_coef_hard[$idx][4];
+	$sum += (($smoking == "yes") ? 1 : 0) * $frs_coef_hard[$idx][5];
+	$sum += log($age) * log($tot_chol) * $frs_coef_hard[$idx][6];
+	$sum += log($age_smoker) * (($smoking == "yes") ? 1 : 0) * $frs_coef_hard[$idx][7];
+	$sum += pow(log($age), 2) * $frs_coef_hard[$idx][8];
+	$sum -= $frs_coef_hard[$idx][9];
+
+	$exponent = exp($sum);
+	$risk_score = round((1 - pow($frs_coef_hard[$idx][10], $exponent)) * 100, 2);
+
+	return $risk_score;
 }
 
 // Robyn L. McClelland, PhD; Neal W. Jorgensen, MS; et al. 10-Year Coronary Heart Disease Risk Prediction Using
@@ -294,8 +354,9 @@ function frs_10y_hard($field_names)
 // J Am Coll Cardiol. 2015 Oct 13;66(15):1643-53.
 function mesa_10y($field_names)
 {
-	$params = PARAM_AGE | PARAM_SEX | PARAM_RACE | PARAM_TOT_CHOL | PARAM_HDL | PARAM_SBP | PARAM_SMOKING |
-		  PARAM_DIABETES | PARAM_BP_MED | PARAM_LIPID_MED | PARAM_FH_HEARTATTACK;
+	$params = PARAM_AGE | PARAM_SEX | PARAM_RACE | PARAM_TOT_CHOL | PARAM_HDL | PARAM_SBP |
+		  PARAM_SMOKING | PARAM_DIABETES | PARAM_BP_MED | PARAM_LIPID_MED |
+		  PARAM_FH_HEARTATTACK;
 
 	$error_code = check_params($params, $field_names);
 	if ($error_code)
@@ -499,4 +560,3 @@ formHeader("Redirecting....");
 formJump();
 formFooter();
 ?>
-
