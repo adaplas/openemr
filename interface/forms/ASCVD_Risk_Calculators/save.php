@@ -17,44 +17,130 @@ require_once("$srcdir/forms.inc");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 
+const PARAM_DIABETES       = 1;
+const PARAM_TOT_CHOL       = 2;
+const PARAM_HDL            = 4;
+const PARAM_SBP            = 8;
+const PARAM_SMOKING        = 16;
+const PARAM_BP_MED         = 32;
+const PARAM_LIPID_MED      = 64;
+const PARAM_RACE           = 128;
+const PARAM_BMI            = 256;
+const PARAM_CAC            = 512;
+const PARAM_FH_HEARTATTACK = 1024;
+const PARAM_AGE            = 2048;
+const PARAM_SEX            = 4096;
+
+function check_params($params, $field_names)
+{
+	if ($params & PARAM_AGE && $field_names["age"] == NULL)
+		return PARAM_AGE;
+
+	if ($params & PARAM_SEX && $field_names["sex"] == NULL)
+		return PARAM_SEX;
+
+	if ($params & PARAM_RACE && $field_names["race"] == NULL)
+		return PARAM_RACE;
+
+	if ($params & PARAM_DIABETES && $field_names["diabetes"] == NULL)
+		return PARAM_DIABETES;
+
+	if ($params & PARAM_TOT_CHOL && $field_names["tot_chol"] == NULL)
+		return PARAM_TOT_CHOL;
+
+	if ($params & PARAM_HDL && $field_names["hdl"] == NULL)
+		return PARAM_HDL;
+
+	if ($params & PARAM_SBP && $field_names["sbp"] == NULL)
+		return PARAM_SBP;
+
+	if ($params & PARAM_SMOKING && $field_names["smoking"] == NULL)
+		return PARAM_SMOKING;
+
+	if ($params & PARAM_BP_MED && $field_names["bp_med"] == NULL)
+		return PARAM_BP_MED;
+
+	if ($params & PARAM_LIPID_MED && $field_names["lipid_med"] == NULL)
+		return PARAM_LIPID_MED;
+
+	if ($params & PARAM_BMI && $field_names["bmi"] == NULL)
+		return PARAM_BMI;
+
+	if ($params & PARAM_CAC && $field_names["cac"] == NULL)
+		return PARAM_CAC;
+
+	if ($params & PARAM_FH_HEARTATTACK && $field_names["fh_heartattack"] == NULL)
+		return PARAM_FH_HEARTATTACK;
+
+	return 0;
+}
+
+function return_error($error_code)
+{
+	switch ($error_code) {
+		case PARAM_AGE:
+			return "Missing Age";
+		case PARAM_SEX:
+			return "Missing Sex";
+		case PARAM_RACE:
+			return "Missing Race";
+		case PARAM_DIABETES:
+			return "Missing Diabetes";
+		case PARAM_TOT_CHOL:
+			return "Missing Total Cholesterol";
+		case PARAM_HDL:
+			return "Missing HDL";
+		case PARAM_SBP:
+			return "Missing Systolic BP";
+		case PARAM_SMOKING:
+			return "Missing Smoking";
+		case PARAM_BP_MED:
+			return "Missing BP Medications";
+		case PARAM_LIPID_MED:
+			return "Missing Lipid Medications/Statins";
+		case PARAM_BMI:
+			return "Missing BMI";
+		case PARAM_CAC:
+			return "Missing Coronory Artery Calcification";
+		case PARAM_FH_HEARTATTACK:
+			return "Missing Family History of Heart Attacks";
+	}
+
+	return 0;
+}
+
 // David C. GoffJr, Donald M. Lloyd-Jones, et al.2013 ACC/AHA Guideline on the Assessment of Cardiovascular Risk:
 // A Report of the American College of Cardiology/American Heart Association Task Force on Practice Guidelines.
 // Circulation. 2014 | Volume 129, Issue 25_suppl_2: S1–S45.
 function accaha_10y($field_names)
 {
-	$idx = 0;
+	$params = PARAM_AGE | PARAM_SEX | PARAM_RACE | PARAM_TOT_CHOL | PARAM_HDL | PARAM_SBP | PARAM_SMOKING |
+		  PARAM_DIABETES | PARAM_BP_MED;
+
+	$error_code = check_params($params, $field_names);
+	if ($error_code)
+		return return_error($error_code);
 
 	$age = $field_names["age"];
-	if ($age == NULL || $age < 20 || $age > 79)
+	if ($age < 20 || $age > 79)
 		return "Age=20-79";
 
-	$sex = $field_names["sex"];
-	if (!$sex)
-		return "Missing Sex";
-
 	$tot_chol = $field_names["tot_chol"];
-	if ($tot_chol == NULL || $tot_chol < 130 || $tot_chol > 320)
+	if ($tot_chol < 130 || $tot_chol > 320)
 		return "Total Cholesterol = 130-120 mg/dL";
 
 	$hdl = $field_names["hdl"];
-	if ($hdl == NULL || $hdl < 20 || $hdl > 100)
+	if ($hdl < 20 || $hdl > 100)
 		return "HDL = 20-100 mg/dL";
 
 	$sbp = $field_names["sbp"];
-	if ($sbp == NULL || $sbp < 90 || $sbp > 200)
+	if ($sbp < 90 || $sbp > 200)
 		return "Systolic BP = 90-200 mmHg";
 
 	$smoking = $field_names["smoking"];
-	if (!$smoking)
-		return "Missing Smoking data";
-
 	$diabetes = $field_names["diabetes"];
-	if (!$diabetes)
-		return "Missing Diabetes data";
-
 	$bp_med = $field_names["bp_med"];
-	if (!$bp_med)
-		return "Missing BP medications";
+	$sex = $field_names["sex"];
 
 	$ascvd_pooled_coef = array(
 		array(-29.799, 4.884, 13.540, -3.114, -13.578, 3.149, 2.019, 0.000, 1.957,
@@ -106,39 +192,24 @@ function accaha_10y($field_names)
 // D'Agostino RB Sr, Vasan RS, Pencina MJ, et al. General cardiovascular risk profile for use in primary care: the Framingham Heart Study. Circulation 2008; 117:743.
 function frs_10y($field_names)
 {
-	$idx = 0;
+	$params = PARAM_AGE | PARAM_SEX | PARAM_TOT_CHOL | PARAM_HDL | PARAM_SBP | PARAM_SMOKING |
+		  PARAM_DIABETES | PARAM_BP_MED;
+
+	$error_code = check_params($params, $field_names);
+	if ($error_code)
+		return return_error($error_code);
 
 	$age = $field_names["age"];
-	if ($age == NULL || $age < 30 || $age > 74)
+	if ($age < 30 || $age > 74)
 		return "Age = 30-74";
 
 	$sex = $field_names["sex"];
-	if (!$sex)
-		return "Missing Sex";
-
 	$tot_chol = $field_names["tot_chol"];
-	if ($tot_chol == NULL)
-		return "Missing Total Cholesterol";
-
 	$hdl = $field_names["hdl"];
-	if ($hdl == NULL)
-		return "Missing HDL";
-
 	$sbp = $field_names["sbp"];
-	if ($sbp == NULL)
-		return "Missing Systolic BP";
-
 	$smoking = $field_names["smoking"];
-	if (!$smoking)
-		return "Missing Smoking data";
-
 	$diabetes = $field_names["diabetes"];
-	if (!$diabetes)
-		return "Missing Diabetes data";
-
 	$bp_med = $field_names["bp_med"];
-	if (!$bp_med)
-		return "Missing BP medications";
 
 	$frs_coef = array(
 		array(3.06117, 1.12370, -0.93263, 1.93303, 1.99881, 0.65451, 0.57367, 23.9802,
@@ -167,35 +238,23 @@ function frs_10y($field_names)
 // D'Agostino RB Sr, Vasan RS, Pencina MJ, et al. General cardiovascular risk profile for use in primary care: the Framingham Heart Study. Circulation 2008; 117:743.
 function frs_10y_simple($field_names)
 {
-	$idx = 0;
+	$params = PARAM_AGE | PARAM_SEX | PARAM_BMI | PARAM_SBP | PARAM_SMOKING |
+		  PARAM_DIABETES | PARAM_BP_MED;
+
+	$error_code = check_params($params, $field_names);
+	if ($error_code)
+		return return_error($error_code);
 
 	$age = $field_names["age"];
-	if ($age == NULL || $age < 30 || $age > 74)
+	if ($age < 30 || $age > 74)
 		return "Age = 30-74";
 
 	$sex = $field_names["sex"];
-	if (!$sex)
-		return "Missing Sex";
-
 	$bmi = $field_names["bmi"];
-	if ($bmi == NULL)
-		return "Missing BMI";
-
 	$sbp = $field_names["sbp"];
-	if ($sbp == NULL)
-		return "Missing Systolic BP";
-
 	$smoking = $field_names["smoking"];
-	if (!$smoking)
-		return "Missing Smoking data";
-
 	$diabetes = $field_names["diabetes"];
-	if (!$diabetes)
-		return "Missing Diabetes data";
-
 	$bp_med = $field_names["bp_med"];
-	if (!$bp_med)
-		return "Missing BP medications";
 
 	$frs_coef_simple = array(
 		array(3.11296, 0.79277, 1.85508, 1.92672, 0.70953, 0.53160, 23.9388,
@@ -226,49 +285,30 @@ function frs_10y_simple($field_names)
 // J Am Coll Cardiol. 2015 Oct 13;66(15):1643-53.
 function mesa_10y($field_names)
 {
+	$params = PARAM_AGE | PARAM_SEX | PARAM_RACE | PARAM_TOT_CHOL | PARAM_HDL | PARAM_SBP | PARAM_SMOKING |
+		  PARAM_DIABETES | PARAM_BP_MED | PARAM_LIPID_MED | PARAM_FH_HEARTATTACK;
+
+	$error_code = check_params($params, $field_names);
+	if ($error_code)
+		return return_error($error_code);
+
 	$race = $field_names["race"];
 	if (!($race == "african american" || $race == "chinese" || $race == "hispanic"))
 		return "Only for African American, Chinese or Hispanic Race/Ethnicity";
 
 	$age = $field_names["age"];
-	if ($age == NULL || $age < 1 || $age > 120)
-		return "Invalid Age";
+	if ($age < 1 || $age > 120)
+		return "Age = 1-120";
 
 	$sex = $field_names["sex"];
-	if (!$sex)
-		return "Missing Sex";
-
 	$tot_chol = $field_names["tot_chol"];
-	if ($tot_chol == NULL || $tot_chol < 1 || $tot_chol > 999)
-		return "Invalid Total Cholesterol";
-
 	$hdl = $field_names["hdl"];
-	if (!$hdl)
-		return "Invalid HDL";
-
 	$diabetes = $field_names["diabetes"];
-	if (!$diabetes)
-		return "Missing Diabetes";
-
 	$smoking = $field_names["smoking"];
-	if (!$smoking)
-		return "Missing Smoking";
-
 	$lipid_med = $field_names["lipid_med"];
-	if (!$lipid_med)
-		return "Missing Lipid Medications";
-
 	$bp_med = $field_names["bp_med"];
-	if (!$bp_med)
-		return "Missing BP Medications";
-
 	$fh_heartattack = $field_names["fh_heartattack"];
-	if (!$fh_heartattack)
-		return "Missing Family History of heart attacks";
-
 	$sbp = $field_names["sbp"];
-	if ($sbp == NULL)
-		return "Missing BP";
 
 	$mesa_coef = array(0.0455, 0.7496, -0.5055, -0.2111, -0.19, 0.5168, 0.4732, 0.0053,
 	 -0.014, 0.2473, 0.0085, 0.3381, 0.4522, 0.99963);
@@ -306,53 +346,31 @@ function mesa_10y($field_names)
 // J Am Coll Cardiol. 2015 Oct 13;66(15):1643-53.
 function mesa_10y_cac($field_names)
 {
+	$params = PARAM_AGE | PARAM_SEX | PARAM_RACE | PARAM_TOT_CHOL | PARAM_HDL | PARAM_SBP | PARAM_SMOKING |
+		  PARAM_DIABETES | PARAM_BP_MED | PARAM_LIPID_MED | PARAM_FH_HEARTATTACK | PARAM_CAC;
+
+	$error_code = check_params($params, $field_names);
+	if ($error_code)
+		return return_error($error_code);
+
 	$race = $field_names["race"];
 	if (!($race == "african american" || $race == "chinese" || $race == "hispanic"))
 		return "Only for African American, Chinese or Hispanic Race/Ethnicity";
 
 	$age = $field_names["age"];
-	if ($age == NULL || $age < 1 || $age > 120)
-		return "Invalid Age";
+	if ($age < 1 || $age > 120)
+		return "Age = 1-120";
 
 	$sex = $field_names["sex"];
-	if (!$sex)
-		return "Missing Sex";
-
 	$tot_chol = $field_names["tot_chol"];
-	if ($tot_chol == NULL || $tot_chol < 1 || $tot_chol > 999)
-		return "Invalid Total Cholesterol";
-
 	$hdl = $field_names["hdl"];
-	if ($hdl == NULL)
-		return "Invalid HDL";
-
 	$diabetes = $field_names["diabetes"];
-	if (!$diabetes)
-		return "Missing Diabetes";
-
 	$smoking = $field_names["smoking"];
-	if (!$smoking)
-		return "Missing Smoking";
-
 	$lipid_med = $field_names["lipid_med"];
-	if (!$lipid_med)
-		return "Missing Lipid Medications";
-
 	$bp_med = $field_names["bp_med"];
-	if (!$bp_med)
-		return "Missing BP Medications";
-
 	$fh_heartattack = $field_names["fh_heartattack"];
-	if (!$fh_heartattack)
-		return "Missing Family History of heart attacks";
-
 	$sbp = $field_names["sbp"];
-	if (!$sbp)
-		return "Missing BP";
-
 	$cac = $field_names["cac"];
-	if ($cac == NULL)
-		return "Missing Coronary Artery Calcification";
 
 	$mesa_coef_cac = array(0.0172, 0.4079, -0.3475, 0.0353, -0.0222, 0.3892, 0.3717, 0.0043,
 	 -0.0114, 0.1206, 0.0066, 0.2278, 0.3239, 0.2743, 0.99833);
