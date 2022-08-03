@@ -1,18 +1,27 @@
 <?php
-//------------report.php
+/**
+ * Senior Health Calculator report.php
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Antonino Daplas <adaplas@gmail.com>
+ * @copyright Copyright (c) 2022 Antonino Daplas <adaplas@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 require_once("../../globals.php");
 require_once($GLOBALS["srcdir"]."/api.inc");
 function senior_health_calculator_report( $pid, $encounter, $cols, $id) {
 	$replace_array = [
 		"Pmhx" => "Medical History",
 		"Fx"   => "Functional Status",
-		"Mmse" => "MMSE",
-		"Moca" => "MoCA",
-		"Mini Cog" => "Mini-Cog",
-		"Chair Stands" => "5 Repeated Chair Stands",
-		"Gait Speed" => "Gait Speed",
-		"Grip Strenth" => "Dominant Hand Grip Strength",
-		"Weight Loss" => "Weight loss > 10lbs in the past year",
+		"Mmse" => "MMSE (out of 30)",
+		"Moca" => "MoCA (out of 30)",
+		"Mini Cog" => "Mini-Cog (out of 5)",
+		"Chair Stands" => "5 Repeated Chair Stands (in seconds)",
+		"Gait Speed" => "Gait Speed (in meters/second)",
+		"Grip Strength" => "Dominant Hand Grip Strength (in kg)",
+		"Weight Loss" => "Weight loss > 10 lbs in the past year",
 		"Bmi" => "BMI < 21 kg/m2",
 		"Albumin" => "Serum Albumin < 3.5 g/L",
 	];
@@ -51,6 +60,14 @@ function senior_health_calculator_report( $pid, $encounter, $cols, $id) {
 				print "<td><br><hr><span class=bold>".text("Nutrition")."</span><hr></td>";
 				print "</tr><tr>";
  				$nutrition_done = 1;
+			}
+			if ($mykey == "Score") {
+				if ($count == $cols - 1) {
+					$count = 0;
+					print "</tr><tr>";
+				}
+				print "<td><br><hr><span class=bold>".text("Frailty Index")."</span><hr></td>";
+				print "</tr><tr>";
 			}
 			$myval = $value;
 			print "<td><span class=bold>".text(($replace_array[$mykey]) ? $replace_array[$mykey] : $mykey).": </span><span class=text>".text($myval)."</span></td>";

@@ -1,5 +1,14 @@
 <?php
-//------------This file inserts your field data into the MySQL database
+/**
+ * Senior Health Calculator save.php
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Antonino Daplas <adaplas@gmail.com>
+ * @copyright Copyright (c) 2022 Antonino Daplas <adaplas@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 require_once("../../globals.php");
 require_once("$srcdir/api.inc");
 require_once("$srcdir/forms.inc");

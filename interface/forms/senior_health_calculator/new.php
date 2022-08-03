@@ -1,4 +1,14 @@
 <?php
+/**
+ * Senior Health Calculator new.php
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Antonino Daplas <adaplas@gmail.com>
+ * @copyright Copyright (c) 2022 Antonino Daplas <adaplas@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 require_once("../../globals.php");
 require_once("$srcdir/api.inc");
 
@@ -11,7 +21,6 @@ formHeader("Form: Senior Health Calculator");
 <?php Header::setupHeader('datetime-picker'); ?>
 </head>
 <body <?php echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
-DATE_HEADER
 <a href='<?php echo $GLOBALS['form_exit_url']; ?>' onclick='top.restoreSession()'> <?php echo xlt("[do not save]") ?> </a>
 <form method=post action="<?php echo $rootdir;?>/forms/senior_health_calculator/save.php?mode=new" name="Senior Health Calculator" onsubmit="return top.restoreSession()">
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
@@ -142,7 +151,7 @@ DATE_HEADER
 
 <br />
 <h4> <?php echo xlt("Gait Speed") ?> </h4>
-<p> <?php echo xlt("(in meters per second)") ?> </p>
+<p> <?php echo xlt("(in meters/second)") ?> </p>
 
 <table>
 

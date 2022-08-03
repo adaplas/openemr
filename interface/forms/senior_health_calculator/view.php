@@ -1,5 +1,14 @@
-<!-- view.php -->
  <?php
+/**
+ * Senior Health Calculator view.php
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Antonino Daplas <adaplas@gmail.com>
+ * @copyright Copyright (c) 2022 Antonino Daplas <adaplas@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
  require_once("../../globals.php");
  require_once("$srcdir/api.inc");
 
@@ -33,7 +42,6 @@
  <?php Header::setupHeader('datetime-picker'); ?>
  </head>
  <body <?php echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
- DATE_HEADER
  <form method=post action="<?php echo $rootdir?>/forms/senior_health_calculator/save.php?mode=update&id=<?php echo attr_url($_GET["id"]); ?>" name="my_form" onsubmit="return top.restoreSession()">
  <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
  <h1> Senior Health Calculator </h1>
@@ -89,6 +97,7 @@
  </table>
  <br />
  <h3> <?php echo xlt("Functional Status") ?> </h3>
+ <p> <?php echo xlt("Does the patient need help from another person to perform the following activities?") ?></p>
 
  <table>
 
@@ -155,14 +164,14 @@
 
  <table>
 
- <tr><td> <?php echo xlt("Mmse") ?> </td> <td><input type="text" name="mmse" value="<?php $result = chkdata_Txt($obj,"mmse"); echo $result;?>"></td></tr>
- <tr><td> <?php echo xlt("Moca") ?> </td> <td><input type="text" name="moca" value="<?php $result = chkdata_Txt($obj,"moca"); echo $result;?>"></td></tr>
- <tr><td> <?php echo xlt("Mini cog") ?> </td> <td><input type="text" name="mini_cog" value="<?php $result = chkdata_Txt($obj,"mini_cog"); echo $result;?>"></td></tr>
+ <tr><td> <?php echo xlt("MMSE") ?> </td> <td><input type="text" name="mmse" value="<?php $result = chkdata_Txt($obj,"mmse"); echo $result;?>"></td></tr>
+ <tr><td> <?php echo xlt("MoCA") ?> </td> <td><input type="text" name="moca" value="<?php $result = chkdata_Txt($obj,"moca"); echo $result;?>"></td></tr>
+ <tr><td> <?php echo xlt("Mini-Cog") ?> </td> <td><input type="text" name="mini_cog" value="<?php $result = chkdata_Txt($obj,"mini_cog"); echo $result;?>"></td></tr>
 
  </table>
  <br />
  <h4> <?php echo xlt("Gait Speed") ?> </h4>
- <p> <?php echo xlt("(in seconds)") ?> </p>
+ <p> <?php echo xlt("(in meters/second)") ?> </p>
 
  <table>
 
@@ -179,8 +188,8 @@
 
  </table>
  <br />
- <h4> <?php echo xlt("Dominant Handgrip Strength") ?> </hr>
-
+ <h4> <?php echo xlt("Dominant Handgrip Strength") ?> </h4>
+ <p> <?php echo xlt("(in kg)") ?> </p>
  <table>
 
  <tr><td> <?php echo xlt("Grip strength") ?> </td> <td><input type="text" name="grip_strength" value="<?php $result = chkdata_Txt($obj,"grip_strength"); echo $result;?>"></td></tr>
