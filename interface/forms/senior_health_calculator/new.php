@@ -5,7 +5,7 @@ require_once("$srcdir/api.inc");
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
-formHeader("Form: senior_health_calculator");
+formHeader("Form: Senior Health Calculator");
 ?>
 <html><head>
 <?php Header::setupHeader('datetime-picker'); ?>
@@ -13,10 +13,10 @@ formHeader("Form: senior_health_calculator");
 <body <?php echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
 DATE_HEADER
 <a href='<?php echo $GLOBALS['form_exit_url']; ?>' onclick='top.restoreSession()'> <?php echo xlt("[do not save]") ?> </a>
-<form method=post action="<?php echo $rootdir;?>/forms/senior_health_calculator/save.php?mode=new" name="senior_health_calculator" onsubmit="return top.restoreSession()">
+<form method=post action="<?php echo $rootdir;?>/forms/senior_health_calculator/save.php?mode=new" name="Senior Health Calculator" onsubmit="return top.restoreSession()">
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 <hr>
-<h1> <?php echo xlt("senior_health_calculator") ?> </h1>
+<h1> <?php echo xlt("Senior Health Calculator") ?> </h1>
 <hr>
 <input type="submit" name="submit form" value="submit form" /><br />
 <br />
@@ -37,7 +37,7 @@ DATE_HEADER
 </tr>
 
 <tr>
-<td><label><input type="checkbox" name="pmhx[]" value="Chronic kidney disease (eGFR less than 60)" /> <?php echo xlt("Chronic kidney disease (eGFR less than 60)") ?> </label></td>
+<td><label><input type="checkbox" name="pmhx[]" value="Chronic kidney disease with eGFR less than 60" /> <?php echo xlt("Chronic kidney disease with eGFR less than 60") ?> </label></td>
 <td><label><input type="checkbox" name="pmhx[]" value="COPD" /> <?php echo xlt("COPD") ?> </label></td>
 <td><label><input type="checkbox" name="pmhx[]" value="Coronary artery disease" /> <?php echo xlt("Coronary artery disease") ?> </label></td>
 </tr>
@@ -84,9 +84,9 @@ DATE_HEADER
 </tr>
 
 <tr>
-<td><label><input type="checkbox" name="fx[]" value="Dressing/undressing" /> <?php echo xlt("Dressing/undressing") ?> </label></td>
+<td><label><input type="checkbox" name="fx[]" value="Dressing or undressing" /> <?php echo xlt("Dressing or undressing") ?> </label></td>
 <td><label><input type="checkbox" name="fx[]" value="Using transportation" /> <?php echo xlt("Using transportation") ?> </label></td>
-<td><label><input type="checkbox" name="fx[]" value="Stooping, crouching or kneeling" /> <?php echo xlt("Stooping, crouching or kneeling") ?> </label></td>
+<td><label><input type="checkbox" name="fx[]" value="Stooping or crouching or kneeling" /> <?php echo xlt("Stooping or crouching or kneeling") ?> </label></td>
 </tr>
 
 <tr>
@@ -96,7 +96,7 @@ DATE_HEADER
 </tr>
 
 <tr>
-<td><label><input type="checkbox" name="fx[]" value="Walking (or use of a walker)" /> <?php echo xlt("Walking (or use of a walker)") ?> </label></td>
+<td><label><input type="checkbox" name="fx[]" value="Walking or use of a walker" /> <?php echo xlt("Walking or use of a walker") ?> </label></td>
 <td><label><input type="checkbox" name="fx[]" value="Preparing own meals" /> <?php echo xlt("Preparing own meals") ?> </label></td>
 <td><label><input type="checkbox" name="fx[]" value="Reaching arms above shoulder" /> <?php echo xlt("Reaching arms above shoulder") ?> </label></td>
 </tr>
@@ -110,7 +110,7 @@ DATE_HEADER
 <tr>
 <td><label><input type="checkbox" name="fx[]" value="Toileting" /> <?php echo xlt("Toileting") ?> </label></td>
 <td><label><input type="checkbox" name="fx[]" value="Taking own medications" /> <?php echo xlt("Taking own medications") ?> </label></td>
-<td><label><input type="checkbox" name="fx[]" value="Walking up/dn a flight of stairs" /> <?php echo xlt("Walking up/dn a flight of stairs") ?> </label></td>
+<td><label><input type="checkbox" name="fx[]" value="Walking up or down a flight of stairs" /> <?php echo xlt("Walking up or down a flight of stairs") ?> </label></td>
 </tr>
 
 <tr>

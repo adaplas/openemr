@@ -6,7 +6,7 @@
  use OpenEMR\Common\Csrf\CsrfUtils;
  use OpenEMR\Core\Header;
 
- formHeader("Form: senior_health_calculator");
+ formHeader("Form: Senior Health Calculator");
  $obj = formFetch("form_senior_health_calculator", $_GET["id"]);  //#Use the formFetch function from api.inc to get values for existing form.
 
  function chkdata_Txt(&$obj, $var) {
@@ -36,7 +36,7 @@
  DATE_HEADER
  <form method=post action="<?php echo $rootdir?>/forms/senior_health_calculator/save.php?mode=update&id=<?php echo attr_url($_GET["id"]); ?>" name="my_form" onsubmit="return top.restoreSession()">
  <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
- <h1> senior_health_calculator </h1>
+ <h1> Senior Health Calculator </h1>
  <hr>
  <input type="submit" name="submit form" value="submit form" /><br />
  <br />
@@ -151,26 +151,18 @@
  <h3> <?php echo xlt("Performance Tests") ?> </h3>
  <br />
  <h4> <?php echo xlt("Mental State Examination") ?> </h4>
+ <p> <?php echo xlt("Choose one test and enter the score") ?> </p>
 
  <table>
 
  <tr><td> <?php echo xlt("Mmse") ?> </td> <td><input type="text" name="mmse" value="<?php $result = chkdata_Txt($obj,"mmse"); echo $result;?>"></td></tr>
-
- </table>
-
- <table>
-
  <tr><td> <?php echo xlt("Moca") ?> </td> <td><input type="text" name="moca" value="<?php $result = chkdata_Txt($obj,"moca"); echo $result;?>"></td></tr>
-
- </table>
-
- <table>
-
  <tr><td> <?php echo xlt("Mini cog") ?> </td> <td><input type="text" name="mini_cog" value="<?php $result = chkdata_Txt($obj,"mini_cog"); echo $result;?>"></td></tr>
 
  </table>
  <br />
  <h4> <?php echo xlt("Gait Speed") ?> </h4>
+ <p> <?php echo xlt("(in seconds)") ?> </p>
 
  <table>
 
@@ -179,6 +171,7 @@
  </table>
  <br />
  <h4> <?php echo xlt("5 Repeated Chair Stands") ?> </h4>
+ <p> <?php echo xlt("(in seconds)") ?> </p>
 
  <table>
 
@@ -198,28 +191,18 @@
 
  <table>
 
- <tr><td> <?php echo xlt("Weight loss") ?> </td> <td><label><input type="radio" name="weight_loss" value="yes" <?php $result = chkdata_Radio($obj,"weight_loss","yes"); echo $result;?>> <?php echo xlt("yes") ?> </label>
+ <tr><td> <?php echo xlt("Weight loss > 10 lbs in past year") ?> </td> <td><label><input type="radio" name="weight_loss" value="yes" <?php $result = chkdata_Radio($obj,"weight_loss","yes"); echo $result;?>> <?php echo xlt("yes") ?> </label>
  <label><input type="radio" name="weight_loss" value="no" <?php $result = chkdata_Radio($obj,"weight_loss","no"); echo $result;?>> <?php echo xlt("no") ?> </label></td></tr>
-
- </table>
-
- <table>
-
- <tr><td> <?php echo xlt("Bmi") ?> </td> <td><label><input type="radio" name="bmi" value="yes" <?php $result = chkdata_Radio($obj,"bmi","yes"); echo $result;?>> <?php echo xlt("yes") ?> </label>
+ <tr><td> <?php echo xlt("BMI < 21 kg/m2") ?> </td> <td><label><input type="radio" name="bmi" value="yes" <?php $result = chkdata_Radio($obj,"bmi","yes"); echo $result;?>> <?php echo xlt("yes") ?> </label>
  <label><input type="radio" name="bmi" value="no" <?php $result = chkdata_Radio($obj,"bmi","no"); echo $result;?>> <?php echo xlt("no") ?> </label></td></tr>
-
- </table>
-
- <table>
-
- <tr><td> <?php echo xlt("Albumin") ?> </td> <td><label><input type="radio" name="albumin" value="yes" <?php $result = chkdata_Radio($obj,"albumin","yes"); echo $result;?>> <?php echo xlt("yes") ?> </label>
+ <tr><td> <?php echo xlt("Serum albumin < 3.5 gm/L") ?> </td> <td><label><input type="radio" name="albumin" value="yes" <?php $result = chkdata_Radio($obj,"albumin","yes"); echo $result;?>> <?php echo xlt("yes") ?> </label>
  <label><input type="radio" name="albumin" value="no" <?php $result = chkdata_Radio($obj,"albumin","no"); echo $result;?>> <?php echo xlt("no") ?> </label></td></tr>
 
  </table>
 
  <table>
 
- <tr><td> <?php echo xlt("Score") ?> </td> <td><input type="text" name="score" value="<?php $result = chkdata_Txt($obj,"score"); echo $result;?>"></td></tr>
+ <tr><td><input type="hidden" name="score" value="<?php $result = chkdata_Txt($obj,"score"); echo $result;?>"></td></tr>
 
  </table>
  <table></table><input type="submit" name="submit form" value="submit form" />

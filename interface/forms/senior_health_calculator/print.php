@@ -5,7 +5,7 @@ require_once("$srcdir/api.inc");
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
-formHeader("Form: senior_health_calculator");
+formHeader("Form: Senior Health Calculator");
 ?>
 <html><head>
 <?php Header::setupHeader('datetime-picker'); ?>
@@ -13,7 +13,7 @@ formHeader("Form: senior_health_calculator");
 <body <?php echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
 <form method=post action="<?php echo $rootdir;?>/forms/senior_health_calculator/save.php?mode=new" name="my_form" onsubmit="return top.restoreSession()">
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
-<h1> senior_health_calculator </h1>
+<h1> Senior Health Calculator </h1>
 <hr>
 <input type="submit" name="submit form" value="submit form" /><br />
 <br />
