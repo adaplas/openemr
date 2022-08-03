@@ -1,0 +1,86 @@
+<?php
+//------------This file inserts your field data into the MySQL database
+require_once("../../globals.php");
+require_once("$srcdir/api.inc");
+require_once("$srcdir/forms.inc");
+
+use OpenEMR\Common\Csrf\CsrfUtils;
+
+if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    CsrfUtils::csrfNotVerified();
+}
+
+//process form variables here
+//create an array of all of the existing field names
+$field_names = array('pmhx' => 'checkbox_group','fx' => 'checkbox_group','mmse' => 'textfield','moca' => 'textfield','mini_cog' => 'textfield','gait_speed' => 'textfield','chair_stands' => 'textfield','grip_strength' => 'textfield','weight_loss' => 'radio_group','bmi' => 'radio_group','albumin' => 'radio_group','score' => 'textfield');
+$negatives = array();
+//process each field according to it's type
+foreach($field_names as $key=>$val)
+{
+  $pos = '';
+  $neg = '';
+	if ($val == "checkbox")
+	{
+		if (isset($_POST[$key]) && $_POST[$key]) {$field_names[$key] = "yes";}
+		else {$field_names[$key] = "negative";}
+	}
+	elseif (($val == "checkbox_group")||($val == "scrolling_list_multiples"))
+	{
+		if (array_key_exists($key,$negatives)) #a field requests reporting of negatives
+		{
+                  if ($_POST[$key])
+                  {
+			foreach($_POST[$key] as $var) #check positives against list
+			{
+				if (array_key_exists($var, $negatives[$key]))
+				{	#remove positives from list, leaving negatives
+					unset($negatives[$key][$var]);
+				}
+			}
+                  }
+			if (is_array($negatives[$key]) && count($negatives[$key])>0)
+			{
+				$neg = "Negative for ".implode(', ',$negatives[$key]).'.';
+			}
+		}
+		if (isset($_POST[$key]) && is_array($_POST[$key]) && count($_POST[$key])>0)
+		{
+			$pos = implode(', ',$_POST[$key]);
+		}
+		if($pos) {$pos = 'Positive for '.$pos.'.  ';}
+		$field_names[$key] = $pos.$neg;
+	}
+	else
+	{
+		if (isset($_POST[$key]))
+			$field_names[$key] = $_POST[$key];
+		else
+			$field_names[$key] = '';
+	}
+        if (isset($field_names[$key]) && $field_names[$key] != '')
+        {
+//          $field_names[$key] .= '.';
+          $field_names[$key] = preg_replace('/\s*,\s*([^,]+)\./',' and $1.',$field_names[$key]); // replace last comma with 'and' and ending period
+        }
+}
+
+//end special processing
+foreach ($field_names as $k => $var) {
+  #if (strtolower($k) == strtolower($var)) {unset($field_names[$k]);}
+  $field_names[$k] = $var;
+echo "$var\n";
+}
+if ($encounter == "")
+$encounter = date("Ymd");
+if ($_GET["mode"] == "new"){
+reset($field_names);
+$newid = formSubmit("form_senior_health_calculator", $field_names, $_GET["id"], $userauthorized);
+addForm($encounter, "senior_health_calculator", $newid, "senior_health_calculator", $pid, $userauthorized);
+}elseif ($_GET["mode"] == "update") {
+sqlStatement("update form_senior_health_calculator set pid = '" . add_escape_custom($_SESSION["pid"]) . "', groupname='" . add_escape_custom($_SESSION["authProvider"]) . "', user='" . add_escape_custom($_SESSION["authUser"]) . "', authorized='" . add_escape_custom($userauthorized) . "', activity=1, date = NOW(), pmhx='".$field_names["pmhx"]."',fx='".$field_names["fx"]."',mmse='".$field_names["mmse"]."',moca='".$field_names["moca"]."',mini_cog='".$field_names["mini_cog"]."',gait_speed='".$field_names["gait_speed"]."',chair_stands='".$field_names["chair_stands"]."',grip_strength='".$field_names["grip_strength"]."',weight_loss='".$field_names["weight_loss"]."',bmi='".$field_names["bmi"]."',albumin='".$field_names["albumin"]."',score='".$field_names["score"]."' where id='" . $_GET["id"] . "'");
+}
+
+formHeader("Redirecting....");
+formJump();
+formFooter();
+?>
