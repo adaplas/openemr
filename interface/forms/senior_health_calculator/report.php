@@ -26,6 +26,7 @@ function senior_health_calculator_report( $pid, $encounter, $cols, $id) {
 		"Albumin" => "Serum Albumin < 3.5 g/L",
 	];
 
+	$cols = 1; // Force single column report
 	$count = 0;
 	$data = formFetch("form_senior_health_calculator", $id);
 	$ms_done = 0;
@@ -44,30 +45,24 @@ function senior_health_calculator_report( $pid, $encounter, $cols, $id) {
 			$mykey = $key;
 			if (!$ms_done && ($mykey == "Mmse" || $mykey == "Moca" || $mykey == "Mini Cog" || $mykey == "Grip Strength" ||
 				$mykey == "Chair Stands" || $mykey == "Gait Speed")) {
-				if ($count == $cols-1) {
-					$count = 0;
-					print "</tr><tr>";
-				}
 				print "<td><br><hr><span class=bold>".text("Performance Tests")."</span><hr></td>";
 				print "</tr><tr>";
  				$ms_done = 1;
+				$cols = 1;
 			}
 			if (!$nutrition_done && ($mykey == "Weight Loss" || $mykey == "Bmi" || $mykey == "Albumin")) {
-				if ($count == $cols-1) {
-					$count = 0;
-					print "</tr><tr>";
-				}
 				print "<td><br><hr><span class=bold>".text("Nutrition")."</span><hr></td>";
 				print "</tr><tr>";
  				$nutrition_done = 1;
+				$cols = 1;
 			}
 			if ($mykey == "Score") {
+				print "<td><br><hr><span class=bold>".text("Frailty Index")."</span><hr></td>";
 				if ($count == $cols - 1) {
 					$count = 0;
 					print "</tr><tr>";
 				}
-				print "<td><br><hr><span class=bold>".text("Frailty Index")."</span><hr></td>";
-				print "</tr><tr>";
+		print "</tr><tr>";
 			}
 			$myval = $value;
 			print "<td><span class=bold>".text(($replace_array[$mykey]) ? $replace_array[$mykey] : $mykey).": </span><span class=text>".text($myval)."</span></td>";
