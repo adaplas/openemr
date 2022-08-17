@@ -783,7 +783,8 @@ class C_Prescription extends Controller
 
         if ($p->get_form()) {
 		$body .= ' [' . text($p->form_array[$p->get_form()]) . "]";
-		if ($p->get_form() == 2 || $p->get_form() == 3) { //tablet or capsule only
+		if (($p->get_form() == 2 || $p->get_form() == 3) &&
+			array_key_exists($perday_sub_array[$p->interval_array[$p->get_interval()]], $perday_sub_array)) { //tablet or capsule only
 			$dur = (int) ($p->get_quantity() / ($perday_sub_array[$p->interval_array[$p->get_interval()]] * $dosage));
 			if ($dur > 0) {
 				$duration = " for " . text($dur) . " " . text($dur > 1 ? "days" : "day" );
