@@ -774,7 +774,7 @@ class C_Prescription extends Controller
 		$num_words = "/(" . $f->format($p->get_quantity()) . ")";
 		$p->cont_subst = true;
 	} else {
-                $num_words = ' ';          
+                $num_words = ' ';
 	}
 
 	$dosage = ($fraction_sub_array[$p->get_dosage()] != NULL ? $fraction_sub_array[$p->get_dosage()] : $p->get_dosage());
@@ -783,8 +783,10 @@ class C_Prescription extends Controller
 
         if ($p->get_form()) {
 		$body .= ' [' . text($p->form_array[$p->get_form()]) . "]";
+		$key = $p->interval_array[$p->get_interval()];
+
 		if (($p->get_form() == 2 || $p->get_form() == 3) &&
-			array_key_exists($perday_sub_array[$p->interval_array[$p->get_interval()]], $perday_sub_array)) { //tablet or capsule only
+			array_key_exists($key, $perday_sub_array)) { //tablet or capsule only
 			$dur = (int) ($p->get_quantity() / ($perday_sub_array[$p->interval_array[$p->get_interval()]] * $dosage));
 			if ($dur > 0) {
 				$duration = " for " . text($dur) . " " . text($dur > 1 ? "days" : "day" );
@@ -797,7 +799,7 @@ class C_Prescription extends Controller
             '<b>' . xlt('#') . ' </b>' . text($p->get_quantity()) . $num_words . "\n\n" .
             '<b>' . xlt('Sig') . ':</b> ' . text($p->get_dosage()) . ' ' . text($form_sub_array[$p->form_array[$p->get_form()]]) . 
              			($dosage > 1 ? "s" : "") . ' ' . text($route_sub_array[$p->route_array[$p->get_route()]]) . ' ' .
-            			 text($interval_sub_array[$p->interval_array[$p->get_interval()]]) . $duration . " ";
+            			 text($interval_sub_array[$p->interval_array[$p->get_interval()]]) . $duration . " "
  
         $note = $p->get_note();
         if ($note != '') {
