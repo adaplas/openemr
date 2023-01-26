@@ -366,7 +366,7 @@ class C_Prescription extends Controller
 	$pdf->ezText('<b>' . $p->provider->get_specialty() . '</b>', 12);
 	$pdf->ezNewPage();
 //        $pdf->ezColumnsStart(array('num' => 2, 'gap' => 10));
-        $res = sqlQuery("SELECT concat('<b>',f.name,'</b>\n',f.street,'\n',f.city,', ',f.state,' ',f.postal_code,'\nTel:',f.phone,if(f.email != '',concat('\nEmail: ',f.email),'')) addr FROM users JOIN facility AS f ON f.name = users.facility where users.id ='" .
+        $res = sqlQuery("SELECT concat('<b>',f.name,'</b>\n',f.street,'\n',f.city,', ',f.state,' ',f.postal_code,'\nCell: ',f.phone,if(f.email != '',concat('\nEmail: ',f.email),'')) addr FROM users JOIN facility AS f ON f.name = users.facility where users.id ='" .
             add_escape_custom($p->provider->id) . "'");
         $pdf->ezText($res['addr'] ?? '', 12);
         $my_y = $pdf->y;
