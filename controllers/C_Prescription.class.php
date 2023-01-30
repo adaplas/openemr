@@ -762,10 +762,12 @@ class C_Prescription extends Controller
 	$fraction_sub_array = [
 		"1/2"			=> 0.5,
 		"1/4"			=> 0.25,
+		"1/8"			=> 0.125,
 		"1 1/2"			=> 1.5,
 		"2 1/2"			=> 2.5,
+		"3 1/2"			=> 3.5,
 	];
-	
+
 
 	$f = new NumberFormatter("en", NumberFormatter::SPELLOUT);
 	$cont = amcCollect('e_prescribe_cont_subst_amc', $p->get_patient_id(), 'prescriptions', $p->get_id());
