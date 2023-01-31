@@ -948,9 +948,9 @@ class C_Prescription extends Controller
 		}
         } while ($loop != 0);
 
-        $pFirstName = $p->patient->fname; //modified by epsdky for prescription filename change to include patient name and ID
-        $pFName = convert_safe_file_dir_name($pFirstName);
-        $modedFileName = "Rx_{$pFName}_{$p->patient->id}_{$_SESSION['encounter']}.pdf";
+        $pLastName = $p->patient->lname; //modified by epsdky for prescription filename change to include patient name and ID
+        $pLName = convert_safe_file_dir_name($pLastName);
+        $modedFileName = "Rx_{$pLName}_{$p->patient->id}_{$_SESSION['encounter']}.pdf";
 
         $pdf->ezStream(array('Content-Disposition' => $modedFileName));
         return;
