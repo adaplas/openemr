@@ -472,7 +472,7 @@ unlink($dname);
 
 // Compute a download name like "filename_lastname_pid.odt".
 $pi = pathinfo($form_filename);
-$dlname = $pi['filename'] . '_' . $ptrow['lname'] . '_' . $pid;
+$dlname = $pi['filename'] . '_' . $ptrow['lname'] . '_' . $pid . '_' . $encounter;
 if ($pi['extension'] !== '') {
     $dlname .= '.' . $pi['extension'];
 }
