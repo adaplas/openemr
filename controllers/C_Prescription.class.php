@@ -684,8 +684,8 @@ class C_Prescription extends Controller
     function get_prescription_body_text($p)
     {
 	$interval_sub_array = [
-		"b.i.d." => "twice a day",
-		"t.i.d." => "thrice a day",
+		"b.i.d." => "2x a day",
+		"t.i.d." => "3x a day",
 		"q.i.d." => "4x a day",
 		"q.3h"   => "every 3 hours",
 		"q.4h"   => "every 4 hours",
@@ -903,6 +903,7 @@ class C_Prescription extends Controller
 	if ($curdate != $encdate) {
 		$pdf->ezText("Current date is not the same as Encounter date. Create encounter for today in order to print");
 		$pdf->ezStream();
+
 		return;
 	}
 
