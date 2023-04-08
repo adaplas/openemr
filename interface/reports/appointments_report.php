@@ -375,6 +375,10 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
     <?php echo ($form_orderby == "pubpid") ? " style=\"color: var(--success)\"" : ""; ?>><?php echo xlt('ID'); ?></a>
         </th>
 
+        <th><a href="nojs.php" onclick="return dosort('pc_room')"
+    <?php echo ($form_orderby == "pc_room") ? " style=\"color: var(--success)\"" : ""; ?>><?php echo xlt('Room'); ?></a>
+        </th>
+
             <th><?php echo xlt('Home'); //Sorting by phone# not really useful ?></th>
 
                 <th><?php echo xlt('Cell'); //Sorting by phone# not really useful ?></th>
@@ -413,7 +417,8 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
         $with_out_facility = $_POST['with_out_facility'];
     }
 
-    $appointments = fetchAppointments($from_date, $to_date, $patient, $provider, $facility, $form_apptstatus, $with_out_provider, $with_out_facility, $form_apptcat);
+    //Set $tracker_board = true to get room number
+    $appointments = fetchAppointments($from_date, $to_date, $patient, $provider, $facility, $form_apptstatus, $with_out_provider, $with_out_facility, $form_apptcat, $tracker_board = true);
 
     if ($show_available_times) {
         $availableSlots = getAvailableSlots($from_date, $to_date, $provider, $facility);
@@ -433,6 +438,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
 
         $errmsg  = "";
         $pc_apptstatus = $appointment['pc_apptstatus'];
+	$room = fetch_rule_txt('patient_flow_board_rooms', $appointment['pc_room']);
 
         ?>
 
@@ -450,6 +456,8 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
         </td>
 
         <td class="detail">&nbsp;<?php echo text($appointment['pubpid']) ?></td>
+
+        <td class="detail">&nbsp;<?php echo text($room['title']) ?></td>
 
         <td class="detail">&nbsp;<?php echo text($appointment['phone_home']) ?></td>
 
