@@ -19,6 +19,42 @@ use OpenEMR\Gacl\GaclApi;
 
 class Installer
 {
+    private $iuser;
+    private $iuserpass;
+    private $iuname;
+    private $iufname;
+    private $igroup;
+    private $i2faEnable;
+    private $i2faSecret;
+    private $server;
+    private $loginhost;
+    private $port;
+    private $root;
+    private $rootpass;
+    private $login;
+    private $pass;
+    private $dbname;
+    private $collate;
+    private $site;
+    private $source_site_id;
+    private $clone_database;
+    private $no_root_db_access;
+    private $development_translations;
+    private $new_theme;
+    private $ippf_specific;
+    public $conffile;
+    private $main_sql;
+    private $translation_sql;
+    private $devel_translation_sql;
+    private $ippf_sql;
+    private $icd9;
+    private $cvx;
+    private $additional_users;
+    private $dumpfiles;
+    public $error_message;
+    public $debug_message;
+    private $dbh;
+
     public function __construct($cgi_variables)
     {
         // Installation variables
@@ -40,7 +76,7 @@ class Installer
         $this->pass                     = isset($cgi_variables['pass']) ? ($cgi_variables['pass']) : '';
         $this->dbname                   = isset($cgi_variables['dbname']) ? ($cgi_variables['dbname']) : '';
         $this->collate                  = isset($cgi_variables['collate']) ? ($cgi_variables['collate']) : '';
-        $this->site                     = isset($cgi_variables['site']) ? ($cgi_variables['site']) : '';
+        $this->site                     = isset($cgi_variables['site']) ? ($cgi_variables['site']) : 'default'; // set to default if not set in order for install script to work correctly
         $this->source_site_id           = isset($cgi_variables['source_site_id']) ? ($cgi_variables['source_site_id']) : '';
         $this->clone_database           = isset($cgi_variables['clone_database']) ? ($cgi_variables['clone_database']) : '';
         $this->no_root_db_access        = isset($cgi_variables['no_root_db_access']) ? ($cgi_variables['no_root_db_access']) : ''; // no root access to database. user/privileges pre-configured
@@ -161,7 +197,7 @@ class Installer
     {
         $this->dbh = $this->connect_to_database($this->server, $this->root, $this->rootpass, $this->port);
         if ($this->dbh) {
-            if (! $this->set_sql_strict()) {
+            if (!$this->set_sql_strict()) {
                 $this->error_message = 'unable to set strict sql setting';
                 return false;
             }
@@ -240,7 +276,15 @@ class Installer
             return $returnSql;
         } else {
             // the mysql user does not yet exist, so create the user
-            return $this->execute_sql("CREATE USER '" . $this->escapeSql($this->login) . "'@'" . $this->escapeSql($this->loginhost) . "' IDENTIFIED BY '" . $this->escapeSql($this->pass) . "'");
+            if (getenv('FORCE_DATABASE_X509_CONNECT', true) == 1) {
+                // this use case is to allow enforcement of x509 database connection use in applicable docker and kubernetes auto installations
+                return $this->execute_sql("CREATE USER '" . $this->escapeSql($this->login) . "'@'" . $this->escapeSql($this->loginhost) . "' IDENTIFIED BY '" . $this->escapeSql($this->pass) . "' REQUIRE X509");
+            } elseif (getenv('FORCE_DATABASE_SSL_CONNECT', true) == 1) {
+                // this use case is to allow enforcement of ssl database connection use in applicable docker and kubernetes auto installations
+                return $this->execute_sql("CREATE USER '" . $this->escapeSql($this->login) . "'@'" . $this->escapeSql($this->loginhost) . "' IDENTIFIED BY '" . $this->escapeSql($this->pass) . "' REQUIRE SSL");
+            } else {
+                return $this->execute_sql("CREATE USER '" . $this->escapeSql($this->login) . "'@'" . $this->escapeSql($this->loginhost) . "' IDENTIFIED BY '" . $this->escapeSql($this->pass) . "'");
+            }
         }
     }
 
@@ -1330,10 +1374,15 @@ $config = 1; /////////////
                 );
             }
         }
-        if ($mysqlSsl) {
-            $ok = mysqli_real_connect($mysqli, $server, $user, $password, $dbname, (int)$port != 0 ? (int)$port : 3306, '', MYSQLI_CLIENT_SSL);
-        } else {
-            $ok = mysqli_real_connect($mysqli, $server, $user, $password, $dbname, (int)$port != 0 ? (int)$port : 3306);
+        try {
+            if ($mysqlSsl) {
+                $ok = mysqli_real_connect($mysqli, $server, $user, $password, $dbname, (int)$port != 0 ? (int)$port : 3306, '', MYSQLI_CLIENT_SSL);
+            } else {
+                $ok = mysqli_real_connect($mysqli, $server, $user, $password, $dbname, (int)$port != 0 ? (int)$port : 3306);
+            }
+        } catch (mysqli_sql_exception $e) {
+            $this->error_message = "unable to connect to sql server because of mysql error: " . $e->getMessage();
+            return false;
         }
         if (!$ok) {
             $this->error_message = 'unable to connect to sql server because of: (' . mysqli_connect_errno() . ') ' . mysqli_connect_error();

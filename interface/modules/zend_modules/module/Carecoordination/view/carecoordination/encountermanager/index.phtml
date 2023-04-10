@@ -202,8 +202,15 @@ foreach ($this->status_details as $row_status) {
                                     <input readonly maxlength="10" style="cursor:pointer;width: 42%;" type="text" name="form_date_to" id="form_date_to" class="dateClass" />
                                     <script>
                                         $(function () {
-                                            $("#form_date_from").datepicker("setDate", '<?php echo $this->commonplugin->date_format($this->form_data['from_date'], $GLOBALS['date_display_format'], 'yyyy-mm-dd');?>');
-                                            $("#form_date_to").datepicker("setDate", '<?php echo $this->commonplugin->date_format($this->form_data['to_date'], $GLOBALS['date_display_format'], 'yyyy-mm-dd');?>');
+                                            <?php
+                                            $display_format = \Application\Model\ApplicationTable::datePickerFormat($GLOBALS['date_display_format']);
+                                            $from_format = $this->commonplugin->date_format($this->form_data['from_date'], $GLOBALS['date_display_format'], 'yyyy-mm-dd');
+                                            $to_format = $this->commonplugin->date_format($this->form_data['to_date'], $GLOBALS['date_display_format'], 'yyyy-mm-dd');
+                                            ?>
+                                            $( "#form_date_from" ).datepicker( "option", "dateFormat", "<?php echo $display_format;?>" );
+                                            $( "#form_date_to" ).datepicker( "option", "dateFormat", "<?php echo $display_format;?>" );
+                                            $("#form_date_from").datepicker("setDate", '<?php echo $from_format;?>');
+                                            $("#form_date_to").datepicker("setDate", '<?php echo $to_format;?>');
                                         });
                                     </script>
                                 </td>
@@ -302,7 +309,7 @@ foreach ($this->status_details as $row_status) {
 
                     <div class="body_inner_wrapper">
                         <div class="header_wrap">
-                            <div class="header_wrap_left">
+                            <div class="header_wrap_left" style="width: 50%">
                                 <div class="search_button" title="Search"><?php echo $this->listenerObject->z_xlt('SEARCH'); ?></div>&nbsp;&nbsp;
                                 <div id="download_ccda" style="display: none;"><?php echo $this->listenerObject->z_xlt('DOWNLOAD'); ?></div>&nbsp;&nbsp;
                                 <input type="hidden" name="downloadccda" id="downloadccda" value="">
@@ -321,7 +328,10 @@ foreach ($this->status_details as $row_status) {
                                 // @see Application view_helpers for this functionality.
                                 $this->sendToHie('carecoordination/layout/encountermanager', array('hie', 'emr_direct', 'download_all'), 'hie');
                                 ?>
-                                <div class="se_in_3" title="<?php echo $this->listenerObject->z_xlt('Reload'); ?>" onclick="javascript:clearCount();document.getElementById('theform').submit();"></div>
+                                <div class="se_in_3" style="float: right;" title="<?php echo $this->listenerObject->z_xlt('Reload'); ?>" onclick="javascript:clearCount();document.getElementById('theform').submit();"></div>
+                                <label for="with_documents" style="float: left; margin-top: 0.5rem;font-size:14px; font-weight: bold;"><?php echo $this->listenerObject->z_xlt('Export Documents'); ?>
+                                    <input id="with_documents" type="checkbox" name="with_documents" style="margin-bottom: 0.25rem" />
+                                </label>
                             </div><!-- header_wrap_left -->
                             <div class="header_wrap_right" style="<?php if (count($this->details) == 0) { ?>display: none;<?php } ?>">
                                 <div class="se_in_4">

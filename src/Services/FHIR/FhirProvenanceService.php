@@ -62,6 +62,23 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
     const V2_TIMESTAMP = 1649476800; // strtotime("2022-04-09");
 
 
+    // Note: FHIR 4.0.1 id columns put a constraint on ids such that:
+    // Ids can be up to 64 characters long, and contain any combination of upper and lowercase ASCII letters,
+    // numerals, "-" and ".".  Logical ids are opaque to the resource server and should NOT be changed once they've
+    // been issued by the resource server
+    // Up to OpenEMR 6.1.0 patch 0 we used : as our separator for Provenance, and _ as our separator for resources such
+    // as CarePlan and Goals.
+    const SURROGATE_KEY_SEPARATOR_V1 = ":";
+    // use the abbreviation PSK for Provenance Surrogate key and hyphens.  Since Logical ids are opaque we can do this as long as
+    // our UUID NEVER generates a three digit hyphenated id which none of the standards currently do.
+    // our other resources use -SK- as a surrogate key
+    // the best approach would be to have a complete accessible provenance data table with its own uuids that's
+    // searchable but right now provenance is tracked so dispararately across the system we go to each resource
+    // in order to grab these ids.
+    const SURROGATE_KEY_SEPARATOR_V2 = "-PSK-";
+    const V2_TIMESTAMP = 1649476800; // strtotime("2022-04-09");
+
+
     const USCGI_PROFILE_URI = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-provenance';
 
 
@@ -417,7 +434,8 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
                 ['resource' => $resource->getId(), 'type' => $resource->get_fhirElementName()]
             );
         } else {
-            $lastUpdated = \DateTime::createFromFormat(DATE_ISO8601, $resource->getMeta()->getLastUpdated());
+            // we use DATE_ATOM to get an ISO8601 compatible date as DATE_ISO8601 does not actually conform to an ISO8601 date for php legacy purposes
+            $lastUpdated = \DateTime::createFromFormat(DATE_ATOM, $resource->getMeta()->getLastUpdated());
 
             if ($lastUpdated !== false && $lastUpdated->getTimestamp() < self::V2_TIMESTAMP) {
                 $separator = self::SURROGATE_KEY_SEPARATOR_V1;

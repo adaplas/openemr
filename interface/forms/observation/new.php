@@ -14,8 +14,8 @@
  */
 
 require_once(__DIR__ . "/../../globals.php");
-require_once("$srcdir/api.inc");
-require_once("$srcdir/patient.inc");
+require_once("$srcdir/api.inc.php");
+require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/options.inc.php");
 require_once($GLOBALS['fileroot'] . '/custom/code_types.inc.php');
 
@@ -40,7 +40,7 @@ if ($formid) {
 $check_res = $formid ? $check_res : array();
 
 $reasonCodeStatii = ReasonStatusCodes::getCodesWithDescriptions();
-$reasonCodeStatii[ReasonStatusCodes::EMPTY]['description'] = xl("Select a status code");
+$reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status code");
 
 $ob_types = [];
 $res = sqlStatement("SELECT `option_id`, `title`  FROM `list_options` WHERE `list_id` = 'Observation_Types' ORDER BY `seq`");

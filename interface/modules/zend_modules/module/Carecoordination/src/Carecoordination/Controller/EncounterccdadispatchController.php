@@ -24,6 +24,7 @@ use Laminas\View\Model\ViewModel;
 use Exception;
 use OpenEMR\Common\Http\Psr17Factory;
 use OpenEMR\Common\Http\StatusCode;
+use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Cqm\QrdaControllers\QrdaReportController;
 use XSLTProcessor;
@@ -53,6 +54,10 @@ class EncounterccdadispatchController extends AbstractActionController
     protected $latest_ccda;
 
     protected $document_type;
+
+    protected $components;
+
+    protected $date_options;
 
     public function __construct(EncounterccdadispatchTable $encounterccdadispatchTable)
     {
@@ -95,12 +100,15 @@ class EncounterccdadispatchController extends AbstractActionController
         $hie_hook = $request->getQuery('hiehook') || 0;
         $this->document_type = $request->getPost('downloadformat_type') ?? $request->getQuery('downloadformat_type');
 
-        // @TODO future use.
-        $date_options = [
-            'date_start' => $this->getRequest()->getQuery('form_date_from') ?? null,
-            'date_end' => $this->getRequest()->getQuery('form_date_to') ?? null
+        // Date Range format.
+        $date_start = !empty($this->getRequest()->getPost('form_date_from') ?? null) ? date('Ymd', strtotime($this->getRequest()->getPost('form_date_from'))) : null;
+        $date_end = !empty($this->getRequest()->getPost('form_date_to') ?? null) ? date('Ymd', strtotime($this->getRequest()->getPost('form_date_to'))) : null;
+        $filter_content = !empty($this->getRequest()->getPost('form_filter_content') ?? null);
+        $this->date_options = [
+            'date_start' => $date_start,
+            'date_end' => $date_end,
+            'filter_content' => $filter_content
         ];
-
 
         // QRDA I user view html version
         if ($this->getRequest()->getQuery('doctype') === 'qrda') {
@@ -115,13 +123,13 @@ class EncounterccdadispatchController extends AbstractActionController
             $xmlController = new QrdaReportController();
             $document = $xmlController->getCategoryIIIReport($combination, '');
             echo $document;
+            EventAuditLogger::instance()->newEvent("qrda3-export", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "QRDA3 view");
             exit;
         }
         // QRDA I batch selected pids download as zip.
         if ($downloadqrda === 'download_qrda') {
             $xmlController = new QrdaReportController();
             $combination = $this->params('pids');
-            $view = $this->params('view');
             $pids = explode('|', $combination);
             $measures = $_REQUEST['report_measures'] ?? "";
             if (is_array($measures)) {
@@ -134,12 +142,10 @@ class EncounterccdadispatchController extends AbstractActionController
             $xmlController->downloadQrdaIAsZip($pids, $measures, 'xml');
             exit;
         }
-
         // QRDA III batch selected pids download as zip.
         if ($downloadqrda3 === 'download_qrda3') {
             $xmlController = new QrdaReportController();
             $combination = $this->params('pids');
-            $view = $this->params('view');
             $pids = explode('|', $combination);
             $measures = $_REQUEST['report_measures_cat3'] ?? "";
             if (is_array($measures)) {
@@ -191,7 +197,9 @@ class EncounterccdadispatchController extends AbstractActionController
                         $this->sections,
                         $this->recipients,
                         $this->params,
-                        $this->document_type
+                        $this->document_type,
+                        $this->referral_reason,
+                        $this->date_options
                     );
                     $content = $result->getContent();
                     unset($result); // clear out our memory here as $content is a big string
@@ -204,10 +212,18 @@ class EncounterccdadispatchController extends AbstractActionController
                     }
                 }
 
+                // split content if unstructured is included from service.
+                $unstructured = "";
+                if (substr_count($content, '</ClinicalDocument>') === 2) {
+                    $d = explode('</ClinicalDocument>', $content);
+                    $content = $d[0] . '</ClinicalDocument>';
+                    $unstructured = $d[1] . '</ClinicalDocument>';
+                }
+
                 if ($view && !$downloadccda) {
                     $xml = simplexml_load_string($content);
                     $xsl = new DOMDocument();
-                    // cda.xsl is self contained with bootstrap and jquery.
+                    // cda.xsl is self-contained with bootstrap and jquery.
                     // cda-web.xsl when used, is for referencing styles from internet.
                     $xsl->load(__DIR__ . '/../../../../../public/xsl/cda.xsl');
                     $proc = new XSLTProcessor();
@@ -216,6 +232,10 @@ class EncounterccdadispatchController extends AbstractActionController
                     $proc->transformToURI($xml, $outputFile);
 
                     $htmlContent = file_get_contents($outputFile);
+                    $result = unlink($outputFile); // remove the file so we don't have PHI left around on the filesystem
+                    if (!$result) {
+                        (new SystemLogger())->errorLogCaller("Failed to unlink temporary CDA output on hard drive. This could expose PHI and needs to be investigated.", ['filename' => $outputFile]);
+                    }
                     echo $htmlContent;
                 }
 
@@ -223,14 +243,14 @@ class EncounterccdadispatchController extends AbstractActionController
                     $pids = $this->params('pids') ?? $combination;
                     // TODO: this appears to be the only place this is used.  Looks at removing this action and bringing it into this controller
                     // no sense in having this forward piece at all...
-                    $this->forward()->dispatch(EncountermanagerController::class, array('action' => 'downloadall', 'pids' => $pids
-                    , 'document_type' => $this->document_type));
+                    $this->forward()->dispatch(EncountermanagerController::class, array('action' => 'downloadall', 'pids' => $pids, 'document_type' => $this->document_type));
                 } else {
                     die;
                 }
             } else {
                 // oddly we send an empty string for our components here if there is no combination,
                 // I don't know how this is even valid as the ccda node service fails if there is no encounters section in the component.
+                // Probably should nullFlavor encounter section in generator and still render document. Looking into sjp
                 $result = $ccdaGenerator->generate(
                     $this->patient_id,
                     $this->encounter_id,
@@ -242,7 +262,9 @@ class EncounterccdadispatchController extends AbstractActionController
                     $this->sections,
                     $this->recipients,
                     $this->params,
-                    $this->document_type
+                    $this->document_type,
+                    $this->referral_reason,
+                    $this->date_options
                 );
                 $content = $result->getContent();
                 unset($result);
@@ -251,7 +273,7 @@ class EncounterccdadispatchController extends AbstractActionController
             }
         } catch (CcdaServiceConnectionException $exception) {
             http_response_code(StatusCode::INTERNAL_SERVER_ERROR);
-            echo xlt("Failed to connect to ccdaservice.  Verify your environment is setup correctly by following the instructions in the ccdaservice's Readme file");
+            echo xlt("Failed to connect to ccdaservice. Verify your environment is setup correctly by following the instructions in the ccdaservice's Readme file");
             (new SystemLogger())->errorLogCaller("Connection error with ccda service", ['message' => $exception->getMessage(), 'trace' => $exception->getTraceAsString()]);
             die();
         }
@@ -262,16 +284,18 @@ class EncounterccdadispatchController extends AbstractActionController
                 echo $content;
                 exit;
             }
-            $practice_filename = "CCDA_{$this->patient_id}.xml";
-            header("Cache-Control: public");
-            header("Content-Description: File Transfer");
-            header("Content-Disposition: attachment; filename=" . $practice_filename);
-            header("Content-Type: application/download");
-            header("Content-Transfer-Encoding: binary");
-            echo $content;
+            if (empty($downloadccda)) {
+                $practice_filename = "CCDA_{$this->patient_id}.xml";
+                header("Cache-Control: public");
+                header("Content-Description: File Transfer");
+                header("Content-Disposition: attachment; filename=" . $practice_filename);
+                header("Content-Type: application/download");
+                header("Content-Transfer-Encoding: binary");
+                echo $content;
+            }
             exit;
         } catch (Exception $e) {
-            die('SOAP Error');
+            die($e->getMessage());
         }
     }
 
