@@ -405,7 +405,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
         </th>
 
         <th><a href="nojs.php" onclick="return dosort('pc_room')"
-    <?php echo ($form_orderby == "pc_room") ? " style=\"color: var(--success)\"" : ""; ?>><?php echo xlt('Room'); ?></a>
+        <?php echo ($form_orderby == "pc_room") ? " style=\"color: var(--success)\"" : ""; ?>><?php echo xlt('Room'); ?></a>
         </th>
 
             <th><?php echo xlt('Home'); //Sorting by phone# not really useful ?></th>
