@@ -23,8 +23,8 @@
  * 07-2015: Ensoftek: Edited for MU2 170.314(b)(5)(A)
  */
 
-require_once($GLOBALS['srcdir'] . "/forms.inc");
-require_once($GLOBALS['srcdir'] . "/pnotes.inc");
+require_once($GLOBALS['srcdir'] . "/forms.inc.php");
+require_once($GLOBALS['srcdir'] . "/pnotes.inc.php");
 
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Logging\EventAuditLogger;
@@ -1488,7 +1488,7 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
                 $amain[$alast]['res'][0]['facility'] .= $performingOrganization . $commentdelim;
             }
         } else {
-            return rhl7LogMsg(xl('Segment name') . " '${a[0]}' " . xl('is misplaced or unknown'));
+            return rhl7LogMsg(xl('Segment name') . " '{$a[0]}' " . xl('is misplaced or unknown'));
         }
     }
 

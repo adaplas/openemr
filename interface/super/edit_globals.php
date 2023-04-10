@@ -21,7 +21,7 @@
 require_once("../globals.php");
 require_once("../../custom/code_types.inc.php");
 require_once("$srcdir/globals.inc.php");
-require_once("$srcdir/user.inc");
+require_once("$srcdir/user.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Auth\AuthHash;
@@ -44,7 +44,7 @@ if (!$userMode) {
   // Check authorization.
     $thisauth = AclMain::aclCheckCore('admin', 'super');
     if (!$thisauth) {
-        echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Global Settings")]);
+        echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Configuration")]);
         exit;
     }
 }
@@ -110,8 +110,15 @@ function updateBackgroundService($name, $active, $interval)
 function checkBackgroundServices()
 {
   //load up any necessary globals
-    $bgservices = sqlStatement("SELECT gl_name, gl_index, gl_value FROM globals WHERE gl_name IN
-  ('phimail_enable','phimail_interval')");
+    $bgservices = sqlStatement(
+        "SELECT gl_name, gl_index, gl_value FROM globals WHERE gl_name IN 
+        (
+            'phimail_enable',
+            'phimail_interval',
+            'auto_sftp_claims_to_x12_partner',
+            'weno_rx_enable'
+        )"
+    );
     while ($globalsrow = sqlFetchArray($bgservices)) {
         $GLOBALS[$globalsrow['gl_name']] = $globalsrow['gl_value'];
     }
@@ -270,8 +277,7 @@ if (array_key_exists('form_save', $_POST) && $_POST['form_save'] && !$userMode) 
                     }
                 }
 
-                // We rely on the fact that set of keys in globals.inc === set of keys in `globals`  table!
-
+                // We rely on the fact that set of keys in globals.inc.php === set of keys in `globals` table!
                 if (
                     !isset($old_globals[$fldid]) // if the key not found in database - update database
                     ||
@@ -330,7 +336,7 @@ if (array_key_exists('form_save', $_POST) && $_POST['form_save'] && !$userMode) 
     echo "</script>";
 }
 
-$title = ($userMode) ? xlt("User Settings") : xlt("Global Settings");
+$title = ($userMode) ? xlt("User Settings") : xlt("Configuration");
 ?>
 <title><?php  echo $title; ?></title>
 <?php Header::setupHeader(['common','jscolor']); ?>
@@ -352,7 +358,7 @@ $title = ($userMode) ? xlt("User Settings") : xlt("Global Settings");
 }
 </style>
 <?php
-$heading_title = ($userMode) ? xl("Edit User Settings") : xl("Edit Global Settings");
+$heading_title = ($userMode) ? xl("Edit User Settings") : xl("Edit Configuration");
 
 $arrOeUiSettings = array(
     'heading_title' => $heading_title,
@@ -395,7 +401,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         <div class="input-group col-sm-4 oe-pull-away">
                         <?php // mdsupport - Optional server based searching mechanism for large number of fields on this screen.
                         if (!$userMode) {
-                            $placeholder = xla('Search global settings');
+                            $placeholder = xla('Search configuration');
                         } else {
                             $placeholder = xla('Search user settings');
                         }
@@ -739,7 +745,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                 }
 
                                                 echo "  </select>\n";
-                                            } else if ($fldtype == GlobalSetting::DATA_TYPE_MULTI_SORTED_LIST_SELECTOR) {
+                                            } elseif ($fldtype == GlobalSetting::DATA_TYPE_MULTI_SORTED_LIST_SELECTOR) {
                                                 include 'templates/field_multi_sorted_list_selector.php';
                                             }
 

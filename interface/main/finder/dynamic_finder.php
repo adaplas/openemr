@@ -17,7 +17,7 @@
  */
 
 require_once(dirname(__FILE__) . "/../../globals.php");
-require_once "$srcdir/user.inc";
+require_once "$srcdir/user.inc.php";
 require_once "$srcdir/options.inc.php";
 
 use OpenEMR\Common\Acl\AclMain;
@@ -378,7 +378,7 @@ $loading = "<div class='spinner-border' role='status'><span class='sr-only'>" . 
                     <div class="table-responsive">
                         <table class="table" class="border-0 display" id="pt_table">
                             <thead class="thead-dark">
-                                <tr id="advanced_search" class="hideaway"  style="display: none;">
+                                <tr id="advanced_search" class="hideaway d-none">
                                     <?php echo $header0; ?>
                                 </tr>
                                 <tr class="">

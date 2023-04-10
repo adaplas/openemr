@@ -8,7 +8,7 @@
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
- * @copyright Copyright (c) 2009-2021 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2009-2022 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2018-2020 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -25,10 +25,10 @@ if ($patientPortalSession) {
 }
 
 require_once("../../globals.php");
-require_once("$srcdir/api.inc");
-require_once("$srcdir/forms.inc");
+require_once("$srcdir/api.inc.php");
+require_once("$srcdir/forms.inc.php");
 require_once("$srcdir/options.inc.php");
-require_once("$srcdir/patient.inc");
+require_once("$srcdir/patient.inc.php");
 require_once($GLOBALS['fileroot'] . '/custom/code_types.inc.php');
 require_once("$srcdir/FeeSheetHtml.class.php");
 
@@ -201,7 +201,7 @@ if (isset($LBF_SERVICES_SECTION) || isset($LBF_PRODUCTS_SECTION) || isset($LBF_D
 }
 
 if (!$from_trend_form) {
-    $fname = $GLOBALS['OE_SITE_DIR'] . "/LBF/$formname.plugin.php";
+    $fname = $GLOBALS['OE_SITE_DIR'] . "/LBF/" . check_file_dir_name($formname) . ".plugin.php";
     if (file_exists($fname)) {
         include_once($fname);
     }
@@ -245,6 +245,7 @@ if (
         );
     }
 
+    $newhistorydata = array();
     $sets = "";
     $fres = sqlStatement("SELECT * FROM layout_options " .
         "WHERE form_id = ? AND uor > 0 AND field_id != '' AND " .
@@ -273,8 +274,9 @@ if (
         if ($source == 'D' || $source == 'H') {
             // Save to patient_data, employer_data or history_data.
             if ($source == 'H') {
-                $new = array($field_id => $value);
-                updateHistoryData($pid, $new);
+                // Do not call updateHistoryData() here! That would create multiple rows
+                // in the history_data table for a single form save.
+                $newhistorydata[$field_id] = $value;
             } elseif (strpos($field_id, 'em_') === 0) {
                 $field_id = substr($field_id, 3);
                 $new = array($field_id => $value);
@@ -330,6 +332,11 @@ if (
             }
         }
     } // end while save
+
+    // Save any history data that was collected above.
+    if (!empty($newhistorydata)) {
+        updateHistoryData($pid, $newhistorydata);
+    }
 
     if ($portalid) {
         // Delete the request from the portal.
@@ -923,7 +930,7 @@ if (
                                 array($formname, $formid)
                             );
                             $form_issue_id = empty($firow['issue_id']) ? 0 : intval($firow['issue_id']);
-                            $default = empty($firow['provider_id']) ? $_SESSION['authUserID'] : intval($firow['provider_id']);
+                            $default = empty($firow['provider_id']) ? ($_SESSION['authUserID'] ?? null) : intval($firow['provider_id']);
 
                             if (!$patient_portal) {
                                 // Provider selector.
@@ -1827,7 +1834,7 @@ if (
 
                 <?php if (!$from_trend_form) { // end row and container divs ?>
                     <p style='text-align:center' class='small'>
-                        <?php echo text(xl('Rev.') . ' ' . substr($grp_last_update, 0, 10)); ?>
+                        <?php echo text(xl('Rev.') . ' ' . substr($grp_last_update ?? '', 0, 10)); ?>
                     </p>
 
                 <?php } ?>
@@ -1839,7 +1846,7 @@ if (
                 } ?>
 
                 <!-- include support for the list-add selectbox feature -->
-                <?php include $GLOBALS['fileroot'] . "/library/options_listadd.inc"; ?>
+                <?php require $GLOBALS['fileroot'] . "/library/options_listadd.inc.php"; ?>
 
                 <script>
                     // Array of action conditions for the checkSkipConditions() function.
